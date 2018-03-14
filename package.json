@@ -1,0 +1,27 @@
+{
+  "name": "issue-tracking-system",
+  "version": "0.0.0",
+  "description": "Issue tracking in software from both sides",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buildforMacarov/Issue_Tracking_System.git"
+  },
+  "keywords": [
+    "issue",
+    "database",
+    "tracking-system"
+  ],
+  "author": "Spatty Co.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/buildforMacarov/Issue_Tracking_System/issues"
+  },
+  "homepage": "https://github.com/buildforMacarov/Issue_Tracking_System#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}
