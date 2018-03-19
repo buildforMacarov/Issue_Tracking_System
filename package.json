@@ -4,7 +4,10 @@
   "description": "Issue tracking in software from both sides",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server/server.js",
+    "clean": "rm -rf ./public/dist",
+    "prebuild": "npm run clean",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -22,8 +25,13 @@
   },
   "homepage": "https://github.com/buildforMacarov/Issue_Tracking_System#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "mysql": "^2.15.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.1.1",
+    "webpack-cli": "^2.0.12"
   }
 }
