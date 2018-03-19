@@ -23,7 +23,7 @@ const connection = mysql.createConnection({
 // const connection = mysql.createConnection(`mysql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}`);
 
 // Middleware:
-app.use(express.static('public'));
+app.use(express.static(__dirname + '/../public'));
 
 connection.connect(error => {
 	if (error) throw error;
