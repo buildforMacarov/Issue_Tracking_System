@@ -4,6 +4,7 @@
   "description": "Issue tracking in software from both sides",
   "main": "server.js",
   "scripts": {
+    "start": "node server/server.js",
     "clean": "rm -rf ./public/dist",
     "prebuild": "npm run clean",
     "build": "webpack"
