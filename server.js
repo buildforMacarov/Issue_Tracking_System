@@ -3,7 +3,7 @@ require('dotenv').config();
 const mysql = require('mysql');
 
 const USER = 'root',
-	PASSWORD = process.env.PASSWORD;
+	PASSWORD = process.env.PASSWORD,
 	HOST = 'localhost',
 	PORT = '3306',
 	DB = 'zoo';
