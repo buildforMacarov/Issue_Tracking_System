@@ -1,6 +1,10 @@
 require('dotenv').config();
 
+const express = require('express');
+const bodyParser = require('body-parser');
 const mysql = require('mysql');
+
+const app = express();
 
 const USER = 'root',
 	PASSWORD = process.env.PASSWORD,
@@ -18,6 +22,9 @@ const connection = mysql.createConnection({
 // Alternative:
 // const connection = mysql.createConnection(`mysql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}`);
 
+// Middleware:
+app.use(express.static('public'));
+
 connection.connect(error => {
 	if (error) throw error;
 	console.log('Connected!');
@@ -31,3 +38,7 @@ function printResponse(error, results, fields) {
 	console.log('Results:\n' + JSON.stringify(results, null, 4));
 	console.log('Fields:\n' + JSON.stringify(fields, null, 4));
 }
+
+const server = app.listen(3000, () => {
+	console.log('Listening at port 3000...');
+});
