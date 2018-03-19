@@ -26,7 +26,8 @@ connection.query('DESCRIBE Animal', printResponse);
 connection.query('SELECT * FROM Animal', printResponse);
 connection.end();
 
-function printResponse(error, response) {
+function printResponse(error, results, fields) {
 	if (error) throw error;
-	console.log('Response:\n' + JSON.stringify(response, null, 4));
+	console.log('Results:\n' + JSON.stringify(results, null, 4));
+	console.log('Fields:\n' + JSON.stringify(fields, null, 4));
 }
