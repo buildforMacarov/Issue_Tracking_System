@@ -10,7 +10,7 @@ const USER = 'root',
 	PASSWORD = process.env.PASSWORD,
 	HOST = 'localhost',
 	PORT = '3306',
-	DB = 'zoo';
+	DB = process.env.DB;
 
 const connection = mysql.createConnection({
 	user: USER,
@@ -29,8 +29,8 @@ connection.connect(error => {
 	if (error) throw error;
 	console.log('Connected!');
 });
-connection.query('DESCRIBE Animal', printResponse);
-connection.query('SELECT * FROM Animal', printResponse);
+connection.query('DESCRIBE customer_table', printResponse);
+connection.query('SELECT * FROM sales_order_table', printResponse);
 connection.end();
 
 function printResponse(error, results, fields) {
