@@ -37,35 +37,13 @@ class IssueCard extends React.Component {
 class IssueGrid extends React.Component {
 	constructor(props) {
 		super(props);
-		this.cardTexts = [
-			{
-				heading: 'sdlfj',
-				body: 'sdfasdfsdfasdfs',
-				opener: 'sdfsdf'
-			},
-			{
-				heading: 'sdfsdf',
-				body: 'rtyrtyrtyetryrthfghfgh',
-				opener: 'fghfgh'
-			},
-			{
-				heading: 'tyutytr',
-				body: 'gjdhdtdhhdrtyrtrty trhdfhfth',
-				opener: 'jghjg'
-			},
-			{
-				heading: 'drtyrth',
-				body: 'fghdtydrtt rthrthrth drth fgh ',
-				opener: 'fhdhfgh'
-			}
-		]
 	}
 	render() {
 		return (
 			<div className="container">
 				<div className="row">
 					{
-						this.cardTexts.map(text => (
+						this.props.cardTexts.map(text => (
 							<div className="col">
 								<IssueCard
 									heading={text.heading}
@@ -81,7 +59,30 @@ class IssueGrid extends React.Component {
 	}
 }
 
+const cardTexts = [
+	{
+		heading: 'sdlfj',
+		body: 'sdfasdfsdfasdfs',
+		opener: 'sdfsdf'
+	},
+	{
+		heading: 'sdfsdf',
+		body: 'rtyrtyrtyetryrthfghfgh',
+		opener: 'fghfgh'
+	},
+	{
+		heading: 'tyutytr',
+		body: 'gjdhdtdhhdrtyrtrty trhdfhfth',
+		opener: 'jghjg'
+	},
+	{
+		heading: 'drtyrth',
+		body: 'fghdtydrtt rthrthrth drth fgh ',
+		opener: 'fhdhfgh'
+	}
+];
+
 ReactDOM.render(
-	<IssueGrid />,
+	<IssueGrid cardTexts={cardTexts} />,
 	document.getElementById('root')
 );
