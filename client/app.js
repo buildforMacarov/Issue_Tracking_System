@@ -34,11 +34,54 @@ class IssueCard extends React.Component {
 	}
 }
 
+class IssueGrid extends React.Component {
+	constructor(props) {
+		super(props);
+		this.cardTexts = [
+			{
+				heading: 'sdlfj',
+				body: 'sdfasdfsdfasdfs',
+				opener: 'sdfsdf'
+			},
+			{
+				heading: 'sdfsdf',
+				body: 'rtyrtyrtyetryrthfghfgh',
+				opener: 'fghfgh'
+			},
+			{
+				heading: 'tyutytr',
+				body: 'gjdhdtdhhdrtyrtrty trhdfhfth',
+				opener: 'jghjg'
+			},
+			{
+				heading: 'drtyrth',
+				body: 'fghdtydrtt rthrthrth drth fgh ',
+				opener: 'fhdhfgh'
+			}
+		]
+	}
+	render() {
+		return (
+			<div className="container">
+				<div className="row">
+					{
+						this.cardTexts.map(text => (
+							<div className="col">
+								<IssueCard
+									heading={text.heading}
+									body={text.body}
+									opener={text.opener}
+								/>
+							</div>
+						))
+					}
+				</div>
+			</div>
+		);
+	}
+}
+
 ReactDOM.render(
-	<IssueCard
-		heading="Event handler not working as expected"
-		body="The events are not triggering as expected in the given module. Something's wrong with the event propagation."
-		opener="Dave"
-		/>,
+	<IssueGrid />,
 	document.getElementById('root')
 );
