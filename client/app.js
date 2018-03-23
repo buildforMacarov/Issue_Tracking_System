@@ -1,2 +1,9 @@
-document.write('Welcome to my new new app');
-console.log('app loaded');
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import { IssueGrid } from './components/issuegrid';
+
+ReactDOM.render(
+	<IssueGrid />,
+	document.getElementById('root')
+);
