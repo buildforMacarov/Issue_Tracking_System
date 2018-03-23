@@ -8,7 +8,7 @@
     "clean": "rm -rf ./public/dist",
     "prebuild": "npm run clean",
     "build": "webpack",
-    "build-watch": "nodemon --exec \"npm run build && npm start\" --ignore \"dist\""
+    "build-watch": "nodemon --exec \"npm run build && npm start\" --ignore \"public/dist\""
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/buildforMacarov/Issue_Tracking_System#readme",
   "dependencies": {
+    "axios": "^0.18.0",
     "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
