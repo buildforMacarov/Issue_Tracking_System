@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const Database = require('./db/database');
+const { respondWithData, respondWithError } = require('./utils/sqlhandlers');
 
 const USER = 'root',
 	PASSWORD = process.env.PASSWORD,
@@ -31,13 +32,8 @@ app.get('/issues/:id?', (req, res) => {
 		? `SELECT * FROM issues WHERE id = ${db.connection.escape(req.params.id)}`
 		: 'SELECT * FROM issues';
 	db.query(sql)
-		.then(rows => {
-			if (rows.length === 0) {
-				res.status(404).send();
-			}
-			res.json({ rows });
-		})
-		.catch(error => res.status(400).send());
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
 });
 
 app.get('/users/:id?', (req, res) => {
@@ -45,13 +41,8 @@ app.get('/users/:id?', (req, res) => {
 		? `SELECT * FROM users WHERE id = ${db.connection.escape(req.params.id)}`
 		: 'SELECT * FROM users';
 	db.query(sql)
-		.then(rows => {
-			if (rows.length === 0) {
-				res.status(404).send();
-			}
-			res.json({ rows });
-		})
-		.catch(error => res.status(400).send());
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
 });
 
 app.get('/users/:userId/issues', (req, res) => {
@@ -63,13 +54,8 @@ app.get('/users/:userId/issues', (req, res) => {
 		WHERE users.id = ${db.connection.escape(userId)}
 	`;
 	db.query(sql)
-		.then(rows => {
-			if (rows.length === 0) {
-				res.status(404).send();
-			}
-			res.json({ rows });
-		})
-		.catch(error => res.status(400).send());
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
 });
 
 const server = app.listen(3000, () => {
