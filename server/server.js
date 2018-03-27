@@ -40,7 +40,7 @@ app.get('/issues/:id', (req, res) => {
 	const sql = 'SELECT * FROM issues WHERE id = ?';
 	db.query(sql, [req.params.id])
 		.then(respondWithData(res))
-		.then(respondWithError(res));
+		.catch(respondWithError(res));
 });
 
 app.get('/users', (req, res) => {
@@ -54,7 +54,7 @@ app.get('/users/:id', (req, res) => {
 	const sql = 'SELECT * FROM users WHERE id = ?';
 	db.query(sql, [req.params.id])
 		.then(respondWithData(res))
-		.then(respondWithError(res));
+		.catch(respondWithError(res));
 });
 
 app.get('/users/:userId/issues', (req, res) => {
