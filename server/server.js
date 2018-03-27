@@ -29,33 +29,42 @@ app.use(bodyParser.json());
 app.use(logger);
 app.use(express.static(__dirname + '/../public'));
 
-app.get('/issues/:id?', (req, res) => {
-	const sql = req.params.id
-		? `SELECT * FROM issues WHERE id = ${db.connection.escape(req.params.id)}`
-		: 'SELECT * FROM issues';
+app.get('/issues', (req, res) => {
+	const sql = 'SELECT * FROM issues';
 	db.query(sql)
 		.then(respondWithData(res))
 		.catch(respondWithError(res));
 });
 
-app.get('/users/:id?', (req, res) => {
-	const sql = req.params.id
-		? `SELECT * FROM users WHERE id = ${db.connection.escape(req.params.id)}`
-		: 'SELECT * FROM users';
+app.get('/issues/:id', (req, res) => {
+	const sql = 'SELECT * FROM issues WHERE id = ?';
+	db.query(sql, [req.params.id])
+		.then(respondWithData(res))
+		.then(respondWithError(res));
+});
+
+app.get('/users', (req, res) => {
+	const sql = 'SELECT * FROM users';
 	db.query(sql)
 		.then(respondWithData(res))
 		.catch(respondWithError(res));
+});
+
+app.get('/users/:id', (req, res) => {
+	const sql = 'SELECT * FROM users WHERE id = ?';
+	db.query(sql, [req.params.id])
+		.then(respondWithData(res))
+		.then(respondWithError(res));
 });
 
 app.get('/users/:userId/issues', (req, res) => {
-	const userId = req.params.userId;
 	const sql = `
 		SELECT issues.*
 		FROM users INNER JOIN user_issues ON users.id = user_issues.user_id
 		INNER JOIN issues ON user_issues.issue_id = issues.id
-		WHERE users.id = ${db.connection.escape(userId)}
+		WHERE users.id = ?
 	`;
-	db.query(sql)
+	db.query(sql, [req.params.userId])
 		.then(respondWithData(res))
 		.catch(respondWithError(res));
 });
