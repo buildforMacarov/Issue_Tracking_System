@@ -33,17 +33,17 @@ connection.connect(error => {
 	console.log('Connected!');
 });
 
-app.get('/issues', sqlWhere, (req, res) => {
-	const query = `
-		SELECT * FROM issues ${req.sqlWhere}
-	`;
+app.get('/issues/:id?', (req, res) => {
+	const query = req.params.id
+		? `SELECT * FROM issues WHERE id = ${connection.escape(req.params.id)}`
+		: 'SELECT * FROM issues';
 	connection.query(query, sendData(res));
 });
 
-app.get('/users', sqlWhere, (req, res) => {
-	const query = `
-		SELECT * FROM users ${req.sqlWhere}
-	`;
+app.get('/users/:id?', (req, res) => {
+	const query = req.params.id
+		? `SELECT * FROM users WHERE id = ${connection.escape(req.params.id)}`
+		: 'SELECT * FROM users';
 	connection.query(query, sendData(res));
 });
 
@@ -64,16 +64,6 @@ function sendData(res) {
 		res.json({ rows });
 	}
 }
-
-function sqlWhere(req, res, next) {
-	req.sqlWhere = '';
-	if (!_.isEmpty(req.query)) {
-		const key = _.keys(req.query)[0];
-		const value = req.query[key];
-		req.sqlWhere += `WHERE ${key} = ${connection.escape(value)}`;
-	}
-	next();
-};
 
 const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
