@@ -59,9 +59,9 @@ app.get('/users/:userId/issues', (req, res) => {
 });
 
 function sendData(res) {
-	return (error, results, fields) => {
+	return (error, rows, fields) => {
 		if (error) return res.redirect('https://http.cat/400');
-		res.json(results);
+		res.json({ rows });
 	}
 }
 
