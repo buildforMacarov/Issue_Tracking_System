@@ -4,6 +4,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
 
+const logger = require('./middleware/logger');
+
 const app = express();
 
 const USER = 'root',
@@ -25,6 +27,7 @@ const connection = mysql.createConnection({
 // Middleware:
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(logger);
 app.use(express.static(__dirname + '/../public'));
 
 connection.connect(error => {
