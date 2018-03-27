@@ -2,11 +2,10 @@ require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const mysql = require('mysql');
 
+const Database = require('./db/database');
+const { respondWithData, respondWithError } = require('./utils/sqlhandlers');
 const logger = require('./middleware/logger');
-
-const app = express();
 
 const USER = 'root',
 	PASSWORD = process.env.PASSWORD,
@@ -14,15 +13,15 @@ const USER = 'root',
 	PORT = '3306',
 	DB = process.env.DB;
 
-const connection = mysql.createConnection({
+const app = express();
+const db = new Database({
 	user: USER,
 	password: PASSWORD,
 	host: HOST,
 	database: DB
 });
-
-// Alternative:
-// const connection = mysql.createConnection(`mysql://${USER}:${PASSWORD}@${HOST}:${PORT}/${DB}`);
+db.connect()
+	.then(response => console.log(response));
 
 // Middleware:
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -30,29 +29,36 @@ app.use(bodyParser.json());
 app.use(logger);
 app.use(express.static(__dirname + '/../public'));
 
-connection.connect(error => {
-	if (error) throw error;
-	console.log('Connected!');
+app.get('/issues/:id?', (req, res) => {
+	const sql = req.params.id
+		? `SELECT * FROM issues WHERE id = ${db.connection.escape(req.params.id)}`
+		: 'SELECT * FROM issues';
+	db.query(sql)
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
 });
 
-app.get('/getTables', (req, res) => {
-	connection.query(`SHOW TABLES`, handleData(res));
+app.get('/users/:id?', (req, res) => {
+	const sql = req.params.id
+		? `SELECT * FROM users WHERE id = ${db.connection.escape(req.params.id)}`
+		: 'SELECT * FROM users';
+	db.query(sql)
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
 });
 
-app.get('/get/:table', (req, res) => {
-	connection.query(`SELECT * FROM ${req.params.table}`, handleData(res));
+app.get('/users/:userId/issues', (req, res) => {
+	const userId = req.params.userId;
+	const sql = `
+		SELECT issues.*
+		FROM users INNER JOIN user_issues ON users.id = user_issues.user_id
+		INNER JOIN issues ON user_issues.issue_id = issues.id
+		WHERE users.id = ${db.connection.escape(userId)}
+	`;
+	db.query(sql)
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
 });
-
-app.get('/describe/:table', (req, res) => {
-	connection.query(`DESCRIBE ${req.params.table}`, handleData(res));
-});
-
-function handleData(res) {
-	return (error, results, fields) => {
-		if (error) return res.redirect('https://http.cat/400');
-		res.json(results);
-	}
-}
 
 const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
