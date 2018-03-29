@@ -1,3 +1,9 @@
+set foreign_key_checks = 0;
+drop table if exists users;
+drop table if exists issues;
+drop table if exists user_issues;
+set foreign_key_checks = 1;
+
 create table users (
   id int(8) not null auto_increment,
   name tinytext not null,
@@ -31,7 +37,7 @@ insert into users values
 (null,'Drankula','drankculawow@gmail.com','hashypassword'),
 (null,'Daniel','danny56@hotmail.com','fjie48&*Rijd'),
 (null,'Maria','mariakoskova@aol.com','qwerty'),
-(null,'Coco','coco@yahoo.com','jidjf$%%^^YU');
+(null,'Coco','coco@hotmail.com','jidjf$%%^^YU');
 
 insert into issues values
 (null, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'open'),
