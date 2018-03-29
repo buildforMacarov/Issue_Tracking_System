@@ -44,3 +44,44 @@ describe('GET /issues/id', () => {
 			.end(done);
 	});
 });
+
+describe('GET /users', () => {
+	it('should return all 8 users', (done) => {
+		request(app)
+			.get('/users')
+			.expect(200)
+			.expect(res => {
+				expect(res.body.rows.length).toBe(8);
+				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email', 'password']);
+			})
+			.end(done);
+	});
+});
+
+describe('GET /users/id', () => {
+	it('should return a user', (done) => {
+		request(app)
+			.get('/users/5')
+			.expect(200)
+			.expect(res => {
+				const user = res.body.rows[0];
+				expect(user).toIncludeKeys(['id', 'name', 'email', 'password']);
+				expect(user.id).toBeA('number');
+			})
+			.end(done);
+	});
+
+	it('should return 404 if id invalid', (done) => {
+		request(app)
+			.get('/users/abc')
+			.expect(404)
+			.end(done);
+	});
+
+	it('should return 404 if id not found', (done) => {
+		request(app)
+			.get('/users/9999')
+			.expect(404)
+			.end(done);
+	});
+});
