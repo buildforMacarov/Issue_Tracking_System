@@ -5,6 +5,6 @@ import { IssueGrid } from './components/issuegrid';
 import { UserPage } from './components/userpage';
 
 ReactDOM.render(
-	<UserPage />,
+	<UserPage name="Joey Salads" />,
 	document.getElementById('root')
 );

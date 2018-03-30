@@ -23,7 +23,7 @@ export class IssueGrid extends React.Component {
 				});
 			},
 			error => {
-				this.setState({
+				this.setState({	
 					isLoaded: true,
 					error
 				});

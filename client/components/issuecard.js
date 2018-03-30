@@ -9,7 +9,7 @@ export class IssueCard extends React.Component {
 			heading: null,
 			description: null,
 			time: null,
-			status: null
+			open: this.props.status === 'open'
 		 }
 
 		 
@@ -19,24 +19,25 @@ export class IssueCard extends React.Component {
 
 	toggleOpen() {
 		this.setState(prevState => ({
-			status: !prevState.status
+			open: !prevState.open
 		}));
 	}
 
 	render() {
-		const { id, heading, description, time, status } = this.props;
+		const { id, heading, description, time } = this.props;
+		const { open } = this.state;
 
 		return (
 			<div className="card">
 				<div className="card-body">
-					<h5 className="card-title">ID: {id}</h5>
+					<h5 className="card-title">ISSUE# : {id}</h5>
 					<h6 className="card-subtitle">HEADING: {heading}</h6>
-					<p className="card-text">Began on: {time} Description: {description}</p>
+					<p className="card-text">Began on: {time} <br /> Description: {description}</p>
 					<button
 						type="button"
 						className={this.state.status ? 'btn btn-success' : 'btn btn-danger'}
 						onClick={this.toggleOpen}>
-						{status ? "OPEN" : 'CLOSED'}
+						{open ? 'OPEN' : 'CLOSED'}
 					</button>
 				</div>
 			</div>
