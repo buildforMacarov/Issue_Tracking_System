@@ -9,17 +9,17 @@ export class IssueGrid extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
-			items: []
+			issues: []
 		}
 	}
 
 	componentDidMount() {
-		axios.get('/get/Animal')
+		axios.get('/issues')
 			.then(res => {
-				console.log(res.data);
+				console.log(res);
 				this.setState({
 					isLoaded: true,
-					items: res.data
+					issues : res.data.rows
 				});
 			},
 			error => {
@@ -31,7 +31,7 @@ export class IssueGrid extends React.Component {
 	}
 
 	render() {
-		const { error, isLoaded, items } = this.state;
+		const { error, isLoaded, issues } = this.state;
 
 		if (error) {
 			return <div>Error: {error.message}</div>;
@@ -40,14 +40,15 @@ export class IssueGrid extends React.Component {
 		} else {
 			return (
 				<div className="container">
-					{items.map(item => (
+					{issues.map(issue => (
 						<div className="row">
 							<div className="col">
 								<IssueCard
-									id={item.AnimalID}
-									type={item.AnimalType}
-									diseaseBegin={item.Disease_begin}
-									disease={item.Disease}
+									id={issue.id}
+									heading={issue.heading}
+									time={issue.time}
+									description={issue.description}
+									status={issue.status}
 								/>
 							</div>
 						</div>
