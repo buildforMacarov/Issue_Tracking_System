@@ -7,18 +7,12 @@ const Database = require('./db/database');
 const { respondWithData, respondWithError } = require('./utils/sqlhandlers');
 const logger = require('./middleware/logger');
 
-const USER = 'root',
-	PASSWORD = process.env.PASSWORD,
-	HOST = 'localhost',
-	PORT = '3306',
-	DB = process.env.DB;
-
 const app = express();
 const db = new Database({
-	user: USER,
-	password: PASSWORD,
-	host: HOST,
-	database: DB
+	user: 'root',
+	password: process.env.PASSWORD,
+	host: 'localhost',
+	database: process.env.DB
 });
 db.connect()
 	.then(response => console.log(response));
