@@ -183,31 +183,68 @@ describe('GET /developers/:developerId/issues', () => {
 	});
 });
 
-describe('POST /issues', () => {
-	it('should post an issue', (done) => {
+describe('POST /issues/:userId', () => {
+	it('should post an issue and update which user posted it', (done) => {
+		const userId = 8;
 		const heading = 'Testing issue post';
 		const description = 'This is a POST /issues test that is valid';
+
 		request(app)
-			.post('/issues')
+			.post(`/issues/${userId}`)
 			.send({ heading, description })
 			.expect(200)
 			.expect(res => {
 				// client test
-				expect(res.body.rows.length).toBe(1);
-				expect(res.body.rows[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
+				expect(res.body).toIncludeKeys(['user', 'issue']);
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.issue).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
+
+				expect(res.body.user.id).toBe(userId);
+				expect(res.body.issue).toInclude({ heading, description, status: 'open' });
 			})
 			.end((err, res) => {
 				// server test
 				if (err) return done(err);
-				const sql = 'SELECT * FROM issues WHERE id = ?';
-				db.query(sql, [res.body.rows[0].id])
+
+				const userRes = res.body.user;
+				const issueRes = res.body.issue;
+
+				db.query('SELECT * FROM issues WHERE id = ?', [issueRes.id])
 					.then(rows => {
 						const postedIssue = rows[0];
-						expect(rows.length).toBe(1);
 						expect(postedIssue).toInclude({ heading, description, status: 'open' });
+						return db.query('select * from user_issues where user_id = ? and issue_id = ?', [userRes.id, issueRes.id]);
+					})
+					.then(rows => {
+						const postedRel = rows[0];
+						expect(postedRel).toInclude({
+							user_id: userRes.id,
+							issue_id: issueRes.id
+						});
 						done();
 					})
 					.catch(done);
 			});
+	});
+
+	it('should not post an issue if user doesn\'t exist', (done) => {
+		request(app)
+			.post('/issues/9999')
+			.send({
+				heading: 'Foo',
+				description: 'yay'
+			})
+			.expect(400)
+			.end(done);
+	});
+
+	it('should not post an issue if no heading', (done) => {
+		request(app)
+			.post('/issues/8')
+			.send({
+				description: 'This issue doesn\'t have a heading'
+			})
+			.expect(400)
+			.end(done);
 	});
 });

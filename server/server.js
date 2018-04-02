@@ -90,22 +90,33 @@ app.get('/developers/:developerId/issues', (req, res) => {
 		.catch(respondWithError(res));
 });
 
-app.post('/issues', (req, res) => {
+app.post('/issues/:userId', async (req, res) => {
 	const { heading, description } = req.body;
-	const sql = 'INSERT INTO issues SET ?';
-	db.query(sql, {
-		id: null,
-		heading,
-		description,
-		time: null,
-		status: 'open'
-	})
-	.then(result => {
-		const sql = 'SELECT * FROM issues WHERE id = ?';
-		return db.query(sql, [result.insertId]);
-	})
-	.then(respondWithData(res))
-	.catch(respondWithError(res));
+	try {
+		const users = await db.query('select id, name, email from users where id = ?', [req.params.userId]);
+		if (users.length === 0) throw new Error('No user by that ID');
+
+		const insertResult = await db.query('INSERT INTO issues SET ?', {
+			id: null,
+			heading,
+			description,
+			time: null,
+			status: 'open'
+		});
+
+		const issues = await db.query('SELECT * FROM issues WHERE id = ?', [insertResult.insertId]);
+		const relInsertResult = await db.query('insert into user_issues set ?', {
+			user_id: users[0].id,
+			issue_id: issues[0].id
+		});
+
+		res.send({
+			user: users[0],
+			issue: issues[0]
+		});
+	} catch (error) {
+		res.status(400).send();
+	}
 });
 
 const server = app.listen(3000, () => {
