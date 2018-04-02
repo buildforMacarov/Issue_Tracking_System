@@ -4,12 +4,12 @@ const expect = require('expect');
 const { app } = require('./../server');
 
 describe('GET /issues', () => {
-	it('should return all 10 issues', (done) => {
+	it('should return all 13 issues', (done) => {
 		request(app)
 			.get('/issues')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(10);
+				expect(res.body.rows.length).toBe(13);
 				expect(res.body.rows[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
 			})
 			.end(done);
