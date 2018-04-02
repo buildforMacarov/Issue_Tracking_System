@@ -8,9 +8,6 @@ class Database {
 		// Alternative:
 		// const { user, password, host, port, db } = config;
 		// this.onnection = mysql.createConnection(`mysql://${user}:${password}@${host}:${port}/${db}`);
-
-		// 'this' has to be bound to the methods that refer to the other methods :(
-		this.resetSeed = this.resetSeed.bind(this);
 	}
 
 	connect() {
@@ -40,20 +37,6 @@ class Database {
 					reject(error);
 				}
 				resolve();
-			});
-		});
-	}
-
-	resetSeed() {
-		return new Promise((resolve, reject) => {
-			fs.readFile(__dirname + '/../tests/its_test.sql', 'utf8', (error, data) => {
-				if (error) {
-					reject(error)
-				};
-				this.query(data)
-					.then(() => console.log('resetted!'))
-					.then(() => resolve())
-					.catch(error => reject(error));
 			});
 		});
 	}
