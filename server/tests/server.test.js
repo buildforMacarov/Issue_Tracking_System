@@ -1,7 +1,10 @@
 const request = require('supertest');
 const expect = require('expect');
 
-const { app } = require('./../server');
+const { app, db } = require('./../server');
+const Database = require('./../db/database');
+
+beforeEach(db.resetSeed);
 
 describe('GET /issues', () => {
 	it('should return all 13 issues', (done) => {

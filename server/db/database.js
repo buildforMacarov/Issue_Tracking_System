@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const fs = require('fs');
 
 class Database {
 	constructor(config) {
@@ -37,6 +38,13 @@ class Database {
 				}
 				resolve();
 			});
+		});
+	}
+
+	resetSeed() {
+		fs.readFile(__dirname + '/../tests/its_test.sql', 'utf8', (err, data) => {
+			if (err) throw err;
+			console.log('resetting!');
 		});
 	}
 }

@@ -1,4 +1,5 @@
 require('dotenv').config();
+require('./config');
 
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -7,21 +8,17 @@ const Database = require('./db/database');
 const { respondWithData, respondWithError } = require('./utils/sqlhandlers');
 const logger = require('./middleware/logger');
 
-const USER = 'root',
-	PASSWORD = process.env.PASSWORD,
-	HOST = 'localhost',
-	PORT = '3306',
-	DB = process.env.DB;
-
 const app = express();
 const db = new Database({
-	user: USER,
-	password: PASSWORD,
-	host: HOST,
-	database: DB
+	user: 'root',
+	password: process.env.PASSWORD,
+	host: 'localhost',
+	database: process.env.DB,
+	multipleStatements: process.env.NODE_ENV === 'test'
 });
+
 db.connect()
-	.then(response => console.log(response));
+	.then(response => console.log(response, `: ${process.env.DB} db`));
 
 // Middleware:
 app.use(bodyParser.urlencoded({ extended: false }));
