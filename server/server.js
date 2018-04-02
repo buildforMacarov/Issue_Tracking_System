@@ -9,13 +9,14 @@ const logger = require('./middleware/logger');
 
 const app = express();
 const db = new Database({
-	user: 'root',
-	password: process.env.PASSWORD,
+	user: process.env.DBUSER,
+	password: process.env.PASSWORD,  // needs to be defined if DBUSER === 'root'
 	host: 'localhost',
 	database: process.env.DB
 });
+
 db.connect()
-	.then(response => console.log(response));
+	.then(response => console.log(response, `: ${process.env.DB} db`));
 
 // Middleware:
 app.use(bodyParser.urlencoded({ extended: false }));
