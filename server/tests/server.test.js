@@ -4,7 +4,10 @@ const expect = require('expect');
 const { app, db } = require('./../server');
 const Database = require('./../db/database');
 
-beforeEach(db.resetSeed);
+beforeEach((done) => {
+	db.resetSeed()
+		.then(done);
+});
 
 describe('GET /issues', () => {
 	it('should return all 13 issues', (done) => {
