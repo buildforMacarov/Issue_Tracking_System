@@ -44,14 +44,14 @@ app.get('/issues/:id', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-	const sql = 'SELECT * FROM users';
+	const sql = 'SELECT id, name, email FROM users';
 	db.query(sql)
 		.then(respondWithData(res))
 		.catch(respondWithError(res));
 });
 
 app.get('/users/:id', (req, res) => {
-	const sql = 'SELECT * FROM users WHERE id = ?';
+	const sql = 'SELECT id, name, email FROM users WHERE id = ?';
 	db.query(sql, [req.params.id])
 		.then(respondWithData(res))
 		.catch(respondWithError(res));
@@ -65,6 +65,32 @@ app.get('/users/:userId/issues', (req, res) => {
 		WHERE users.id = ?
 	`;
 	db.query(sql, [req.params.userId])
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
+});
+
+app.get('/developers', (req, res) => {
+	const sql = 'SELECT id, name, email FROM developers';
+	db.query(sql)
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
+});
+
+app.get('/developers/:id', (req, res) => {
+	const sql = 'SELECT id, name, email FROM developers WHERE id = ?';
+	db.query(sql, [req.params.id])
+		.then(respondWithData(res))
+		.catch(respondWithError(res));
+});
+
+app.get('/developers/:developerId/issues', (req, res) => {
+	const sql = `
+		SELECT issues.*
+		FROM developers INNER JOIN developer_issues ON developers.id = developer_issues.developer_id
+		INNER JOIN issues ON developer_issues.issue_id = issues.id
+		WHERE developers.id = ?
+	`;
+	db.query(sql, [req.params.developerId])
 		.then(respondWithData(res))
 		.catch(respondWithError(res));
 });

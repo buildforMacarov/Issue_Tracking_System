@@ -51,7 +51,7 @@ describe('GET /users', () => {
 			.expect(200)
 			.expect(res => {
 				expect(res.body.rows.length).toBe(8);
-				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email', 'password']);
+				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
 	});
@@ -64,7 +64,7 @@ describe('GET /users/:id', () => {
 			.expect(200)
 			.expect(res => {
 				const user = res.body.rows[0];
-				expect(user).toIncludeKeys(['id', 'name', 'email', 'password']);
+				expect(user).toIncludeKeys(['id', 'name', 'email']);
 				expect(user.id).toBeA('number');
 			})
 			.end(done);
@@ -108,6 +108,76 @@ describe('GET /users/:userId/issues', () => {
 	it('should return 404 if userId not found', (done) => {
 		request(app)
 			.get('/users/9999/issues')
+			.expect(404)
+			.end(done);
+	});
+});
+
+describe('GET /developers', () => {
+	it('should return all 6 developers', (done) => {
+		request(app)
+			.get('/developers')
+			.expect(200)
+			.expect(res => {
+				expect(res.body.rows.length).toBe(6);
+				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email']);
+			})
+			.end(done);
+	});
+});
+
+describe('GET /developers/:id', () => {
+	it('should return a developer', (done) => {
+		request(app)
+			.get('/developers/5')
+			.expect(200)
+			.expect(res => {
+				const dev = res.body.rows[0];
+				expect(dev).toIncludeKeys(['id', 'name', 'email']);
+				expect(dev.id).toBeA('number');
+			})
+			.end(done);
+	});
+
+	it('should return 404 if id invalid', (done) => {
+		request(app)
+			.get('/developers/abc')
+			.expect(404)
+			.end(done);
+	});
+
+	it('should return 404 if id not found', (done) => {
+		request(app)
+			.get('/developers/9999')
+			.expect(404)
+			.end(done);
+	});
+});
+
+describe('GET /developers/:developerId/issues', () => {
+	it('should return all of a developer\'s issues', (done) => {
+		request(app)
+			.get('/developers/3/issues')
+			.expect(200)
+			.expect(res => {
+				const issues = res.body.rows;
+				const issueIds = issues.map(issue => issue.id);
+				expect(issues.length).toBe(2);
+				expect(issueIds).toEqual([8, 9]);
+			})
+			.end(done);
+	});
+
+	it('should return 404 if developerId invalid', (done) => {
+		request(app)
+			.get('/developers/abc/issues')
+			.expect(404)
+			.end(done);
+	});
+
+	it('should return 404 if developerId not found', (done) => {
+		request(app)
+			.get('/developers/9999/issues')
 			.expect(404)
 			.end(done);
 	});
