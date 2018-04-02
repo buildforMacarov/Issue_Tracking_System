@@ -9,9 +9,8 @@
     "prebuild": "npm run clean",
     "build": "webpack",
     "build-watch": "nodemon --exec \"npm run build && npm start\" --ignore \"public/dist\"",
-    "reset-testdb": "mysql -u root -p its_test < ./server/tests/its_test.sql",
-    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js",
-    "test-reset": "npm run reset-testdb && npm test",
+    "reset-testdb": "mysql -u its_tester its_test < ./server/tests/its_test.sql",
+    "test": "npm run reset-testdb && mocha server/**/*.test.js",
     "test-watch": "nodemon --exec \"npm test\""
   },
   "repository": {

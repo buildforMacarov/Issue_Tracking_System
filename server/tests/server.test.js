@@ -2,12 +2,6 @@ const request = require('supertest');
 const expect = require('expect');
 
 const { app, db } = require('./../server');
-const Database = require('./../db/database');
-
-beforeEach((done) => {
-	db.resetSeed()
-		.then(done);
-});
 
 describe('GET /issues', () => {
 	it('should return all 13 issues', (done) => {
@@ -186,5 +180,34 @@ describe('GET /developers/:developerId/issues', () => {
 			.get('/developers/9999/issues')
 			.expect(404)
 			.end(done);
+	});
+});
+
+describe('POST /issues', () => {
+	it('should post an issue', (done) => {
+		const heading = 'Testing issue post';
+		const description = 'This is a POST /issues test that is valid';
+		request(app)
+			.post('/issues')
+			.send({ heading, description })
+			.expect(200)
+			.expect(res => {
+				// client test
+				expect(res.body.rows.length).toBe(1);
+				expect(res.body.rows[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
+			})
+			.end((err, res) => {
+				// server test
+				if (err) return done(err);
+				const sql = 'SELECT * FROM issues WHERE id = ?';
+				db.query(sql, [res.body.rows[0].id])
+					.then(rows => {
+						const postedIssue = rows[0];
+						expect(rows.length).toBe(1);
+						expect(postedIssue).toInclude({ heading, description, status: 'open' });
+						done();
+					})
+					.catch(done);
+			});
 	});
 });

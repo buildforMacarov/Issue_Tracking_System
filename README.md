@@ -11,11 +11,13 @@ Tracks software issues :mag:
 * Clone this repo
   - `$ git clone <this-repo> && cd <this-repo>`
 * Put the following in a new file `.env` in the project's root directory
-  - `PASSWORD=<your_pc_password>`
+  - `DBUSER=its_tester`
   - `DB=its_test`
 * Configure the database
   - `$ mysql -u root -p`
-  - `mysql> create database its_test; exit;`
+  - `mysql> create database its_test;`
+  - `create user 'its_tester'@'localhost';`
+  - `grant all privileges on its_test.* to 'its_tester'@'localhost'; exit;`
   - `$ npm run resetdb`
 * Install dependencies and build
   - `$ npm install && npm install --dev`
