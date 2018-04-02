@@ -95,8 +95,26 @@ app.get('/developers/:developerId/issues', (req, res) => {
 		.catch(respondWithError(res));
 });
 
+app.post('/issues', (req, res) => {
+	const { heading, description } = req.body;
+	const sql = 'INSERT INTO issues SET ?';
+	db.query(sql, {
+		id: null,
+		heading,
+		description,
+		time: null,
+		status: 'open'
+	})
+	.then(result => {
+		const sql = 'SELECT * FROM issues WHERE id = ?';
+		return db.query(sql, [result.insertId]);
+	})
+	.then(respondWithData(res))
+	.catch(respondWithError(res));
+});
+
 const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
 });
 
-module.exports = { app };
+module.exports = { app, db };
