@@ -4,12 +4,12 @@ const expect = require('expect');
 const { app, db } = require('./../server');
 
 describe('GET /issues', () => {
-	it('should return all 13 issues', (done) => {
+	it('should return all 3 issues', (done) => {
 		request(app)
 			.get('/issues')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(13);
+				expect(res.body.rows.length).toBe(3);
 				expect(res.body.rows[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
 			})
 			.end(done);
@@ -45,12 +45,12 @@ describe('GET /issues/:id', () => {
 });
 
 describe('GET /users', () => {
-	it('should return all 8 users', (done) => {
+	it('should return all 3 users', (done) => {
 		request(app)
 			.get('/users')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(8);
+				expect(res.body.rows.length).toBe(3);
 				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
@@ -60,7 +60,7 @@ describe('GET /users', () => {
 describe('GET /users/:id', () => {
 	it('should return a user', (done) => {
 		request(app)
-			.get('/users/5')
+			.get('/users/2')
 			.expect(200)
 			.expect(res => {
 				const user = res.body.rows[0];
@@ -88,12 +88,12 @@ describe('GET /users/:id', () => {
 describe('GET /users/:userId/issues', () => {
 	it('should return all of a user\'s issues', (done) => {
 		request(app)
-			.get('/users/3/issues')
+			.get('/users/2/issues')
 			.expect(200)
 			.expect(res => {
 				const issueIds = res.body.rows.map(issue => issue.id);
-				expect(res.body.rows.length).toBe(3);
-				expect(issueIds).toEqual([2, 3, 7]);
+				expect(res.body.rows.length).toBe(2);
+				expect(issueIds).toEqual([1, 3]);
 			})
 			.end(done);
 	});
@@ -114,12 +114,12 @@ describe('GET /users/:userId/issues', () => {
 });
 
 describe('GET /developers', () => {
-	it('should return all 6 developers', (done) => {
+	it('should return all 3 developers', (done) => {
 		request(app)
 			.get('/developers')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(6);
+				expect(res.body.rows.length).toBe(3);
 				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
@@ -129,7 +129,7 @@ describe('GET /developers', () => {
 describe('GET /developers/:id', () => {
 	it('should return a developer', (done) => {
 		request(app)
-			.get('/developers/5')
+			.get('/developers/1')
 			.expect(200)
 			.expect(res => {
 				const dev = res.body.rows[0];
@@ -155,7 +155,7 @@ describe('GET /developers/:id', () => {
 });
 
 describe('GET /developers/:developerId/issues', () => {
-	it('should return all of a developer\'s issues', (done) => {
+	it('should return all of a developer\'s assigned issues', (done) => {
 		request(app)
 			.get('/developers/3/issues')
 			.expect(200)
@@ -163,7 +163,7 @@ describe('GET /developers/:developerId/issues', () => {
 				const issues = res.body.rows;
 				const issueIds = issues.map(issue => issue.id);
 				expect(issues.length).toBe(2);
-				expect(issueIds).toEqual([8, 9]);
+				expect(issueIds).toEqual([1, 2]);
 			})
 			.end(done);
 	});
@@ -185,7 +185,7 @@ describe('GET /developers/:developerId/issues', () => {
 
 describe('POST /issues/:userId', () => {
 	it('should post an issue and update which user posted it', (done) => {
-		const userId = 8;
+		const userId = 1;
 		const heading = 'Testing issue post';
 		const description = 'This is a POST /issues test that is valid';
 
@@ -195,30 +195,29 @@ describe('POST /issues/:userId', () => {
 			.expect(200)
 			.expect(res => {
 				// client test
-				expect(res.body).toIncludeKeys(['user', 'issue']);
-				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
 				expect(res.body.issue).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
-
-				expect(res.body.user.id).toBe(userId);
 				expect(res.body.issue).toInclude({ heading, description, status: 'open' });
 			})
 			.end((err, res) => {
 				// server test
 				if (err) return done(err);
 
-				const userRes = res.body.user;
 				const issueRes = res.body.issue;
 
-				db.query('SELECT * FROM issues WHERE id = ?', [issueRes.id])
+				db.query('SELECT * FROM issues')
+					.then(rows => {
+						expect(rows.length).toBe(4);
+						return db.query('SELECT * FROM issues WHERE id = ?', [issueRes.id]);
+					})
 					.then(rows => {
 						const postedIssue = rows[0];
 						expect(postedIssue).toInclude({ heading, description, status: 'open' });
-						return db.query('select * from user_issues where user_id = ? and issue_id = ?', [userRes.id, issueRes.id]);
+						return db.query('select * from user_issue_open where user_id = ? and issue_id = ?', [userId, issueRes.id]);
 					})
 					.then(rows => {
 						const postedRel = rows[0];
 						expect(postedRel).toInclude({
-							user_id: userRes.id,
+							user_id: userId,
 							issue_id: issueRes.id
 						});
 						done();
@@ -229,7 +228,7 @@ describe('POST /issues/:userId', () => {
 
 	it('should not post an issue if user doesn\'t exist', (done) => {
 		request(app)
-			.post('/issues/9999')
+			.post('/issues/4')
 			.send({
 				heading: 'Foo',
 				description: 'yay'

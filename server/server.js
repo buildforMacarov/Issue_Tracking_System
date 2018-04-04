@@ -55,8 +55,8 @@ app.get('/users/:id', (req, res) => {
 app.get('/users/:userId/issues', (req, res) => {
 	const sql = `
 		SELECT issues.*
-		FROM users INNER JOIN user_issues ON users.id = user_issues.user_id
-		INNER JOIN issues ON user_issues.issue_id = issues.id
+		FROM users INNER JOIN user_issue_open ON users.id = user_issue_open.user_id
+		INNER JOIN issues ON user_issue_open.issue_id = issues.id
 		WHERE users.id = ?
 	`;
 	db.query(sql, [req.params.userId])
@@ -81,8 +81,8 @@ app.get('/developers/:id', (req, res) => {
 app.get('/developers/:developerId/issues', (req, res) => {
 	const sql = `
 		SELECT issues.*
-		FROM developers INNER JOIN developer_issues ON developers.id = developer_issues.developer_id
-		INNER JOIN issues ON developer_issues.issue_id = issues.id
+		FROM developers INNER JOIN developer_issue_assignment ON developers.id = developer_issue_assignment.developer_id
+		INNER JOIN issues ON developer_issue_assignment.issue_id = issues.id
 		WHERE developers.id = ?
 	`;
 	db.query(sql, [req.params.developerId])
@@ -105,13 +105,12 @@ app.post('/issues/:userId', async (req, res) => {
 		});
 
 		const issues = await db.query('SELECT * FROM issues WHERE id = ?', [insertResult.insertId]);
-		const relInsertResult = await db.query('insert into user_issues set ?', {
+		const relInsertResult = await db.query('insert into user_issue_open set ?', {
 			user_id: users[0].id,
 			issue_id: issues[0].id
 		});
 
 		res.send({
-			user: users[0],
 			issue: issues[0]
 		});
 	} catch (error) {
