@@ -4,7 +4,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const Database = require('./db/database');
-const { respondWithData, respondWithError } = require('./utils/sqlhandlers');
 const logger = require('./middleware/logger');
 
 const app = express();
@@ -25,31 +24,47 @@ app.use(logger);
 app.use(express.static(__dirname + '/../public'));
 
 app.get('/issues', (req, res) => {
-	const sql = 'SELECT * FROM issues';
-	db.query(sql)
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+	db.query('SELECT * FROM issues')
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/issues/:id', (req, res) => {
-	const sql = 'SELECT * FROM issues WHERE id = ?';
-	db.query(sql, [req.params.id])
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+	db.query('SELECT * FROM issues WHERE id = ?', [req.params.id])
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/users', (req, res) => {
-	const sql = 'SELECT id, name, email FROM users';
-	db.query(sql)
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+	db.query('SELECT id, name, email FROM users')
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/users/:id', (req, res) => {
-	const sql = 'SELECT id, name, email FROM users WHERE id = ?';
-	db.query(sql, [req.params.id])
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+	db.query('SELECT id, name, email FROM users WHERE id = ?', [req.params.id])
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/users/:userId/issues', (req, res) => {
@@ -60,22 +75,35 @@ app.get('/users/:userId/issues', (req, res) => {
 		WHERE users.id = ?
 	`;
 	db.query(sql, [req.params.userId])
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/developers', (req, res) => {
-	const sql = 'SELECT id, name, email FROM developers';
-	db.query(sql)
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+	db.query('SELECT id, name, email FROM developers')
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/developers/:id', (req, res) => {
-	const sql = 'SELECT id, name, email FROM developers WHERE id = ?';
-	db.query(sql, [req.params.id])
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+	db.query('SELECT id, name, email FROM developers WHERE id = ?', [req.params.id])
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.get('/developers/:developerId/issues', (req, res) => {
@@ -86,8 +114,13 @@ app.get('/developers/:developerId/issues', (req, res) => {
 		WHERE developers.id = ?
 	`;
 	db.query(sql, [req.params.developerId])
-		.then(respondWithData(res))
-		.catch(respondWithError(res));
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ rows });
+		})
+		.catch(error => res.status(400).send());
 });
 
 app.post('/issues/:userId', async (req, res) => {
