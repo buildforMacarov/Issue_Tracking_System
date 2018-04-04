@@ -9,8 +9,8 @@ describe('GET /issues', () => {
 			.get('/issues')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(3);
-				expect(res.body.rows[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
+				expect(res.body.issues.length).toBe(3);
+				expect(res.body.issues[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
 			})
 			.end(done);
 	});
@@ -22,9 +22,8 @@ describe('GET /issues/:id', () => {
 			.get('/issues/3')
 			.expect(200)
 			.expect(res => {
-				const issue = res.body.rows[0];
-				expect(issue).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
-				expect(issue.id).toBeA('number');
+				expect(res.body.issue).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
+				expect(res.body.issue.id).toBeA('number');
 			})
 			.end(done);
 	});
@@ -50,8 +49,8 @@ describe('GET /users', () => {
 			.get('/users')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(3);
-				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.users.length).toBe(3);
+				expect(res.body.users[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
 	});
@@ -63,9 +62,8 @@ describe('GET /users/:id', () => {
 			.get('/users/2')
 			.expect(200)
 			.expect(res => {
-				const user = res.body.rows[0];
-				expect(user).toIncludeKeys(['id', 'name', 'email']);
-				expect(user.id).toBeA('number');
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.user.id).toBeA('number');
 			})
 			.end(done);
 	});
@@ -91,8 +89,8 @@ describe('GET /users/:userId/issues', () => {
 			.get('/users/2/issues')
 			.expect(200)
 			.expect(res => {
-				const issueIds = res.body.rows.map(issue => issue.id);
-				expect(res.body.rows.length).toBe(2);
+				const issueIds = res.body.issues.map(issue => issue.id);
+				expect(res.body.issues.length).toBe(2);
 				expect(issueIds).toEqual([1, 3]);
 			})
 			.end(done);
@@ -119,8 +117,8 @@ describe('GET /developers', () => {
 			.get('/developers')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.rows.length).toBe(3);
-				expect(res.body.rows[0]).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.developers.length).toBe(3);
+				expect(res.body.developers[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
 	});
@@ -132,9 +130,8 @@ describe('GET /developers/:id', () => {
 			.get('/developers/1')
 			.expect(200)
 			.expect(res => {
-				const dev = res.body.rows[0];
-				expect(dev).toIncludeKeys(['id', 'name', 'email']);
-				expect(dev.id).toBeA('number');
+				expect(res.body.developer).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.developer.id).toBeA('number');
 			})
 			.end(done);
 	});
@@ -160,9 +157,8 @@ describe('GET /developers/:developerId/issues', () => {
 			.get('/developers/3/issues')
 			.expect(200)
 			.expect(res => {
-				const issues = res.body.rows;
-				const issueIds = issues.map(issue => issue.id);
-				expect(issues.length).toBe(2);
+				const issueIds = res.body.issues.map(issue => issue.id);
+				expect(res.body.issues.length).toBe(2);
 				expect(issueIds).toEqual([1, 2]);
 			})
 			.end(done);

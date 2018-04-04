@@ -29,7 +29,7 @@ app.get('/issues', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ issues: rows });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -40,7 +40,7 @@ app.get('/issues/:id', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ issue: rows[0] });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -51,7 +51,7 @@ app.get('/users', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ users: rows });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -62,7 +62,7 @@ app.get('/users/:id', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ user: rows[0] });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -79,7 +79,7 @@ app.get('/users/:userId/issues', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ issues: rows });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -90,7 +90,7 @@ app.get('/developers', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ developers: rows });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -101,7 +101,7 @@ app.get('/developers/:id', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ developer: rows[0] });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -118,7 +118,7 @@ app.get('/developers/:developerId/issues', (req, res) => {
 			if (rows.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ rows });
+			res.json({ issues: rows });
 		})
 		.catch(error => res.status(400).send());
 });
