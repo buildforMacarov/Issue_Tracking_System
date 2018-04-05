@@ -8,34 +8,43 @@ export class UserPage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			email : null,
-			issue : null
-		}
+			infoAvail: false,
+			userInfo: null,
+			error: null
+		};
 	}
 
 	componentDidMount() {
-		axios.get('/users/:id')
+		axios.get(`/users/${this.props.id}`)
 			.then(res => {
-				console.log(res);
 				this.setState({
-					isLoaded: true,
-					user : res.data.rows
+					infoAvail: true,
+					userInfo: res.data.user
 				});
-			},
-			error => {
+			}, error => {
 				this.setState({
-					isLoaded: true,
+					infoAvail: true,
 					error
 				});
 			});
 	}
 
 	render() {
-		return (
-			<div>
-			<Navbar mainLabel={this.props.name} />
-				<IssueGrid />
-			</div>
-		);
+		const { infoAvail, userInfo } = this.state;
+		if (infoAvail) {
+			return (
+				<div>
+					<Navbar mainLabel={userInfo.name} />
+					<IssueGrid userId={this.props.id} />
+				</div>
+			);
+		} else {
+			return (
+				<div>
+					<Navbar mainLabel="..." />
+					<IssueGrid userId={this.props.id} />
+				</div>
+			);
+		}
 	}
 }

@@ -14,12 +14,12 @@ export class IssueGrid extends React.Component {
 	}
 
 	componentDidMount() {
-		axios.get('/issues')
+		axios.get(`/users/${this.props.userId}/issues`)
 			.then(res => {
 				console.log(res);
 				this.setState({
 					isLoaded: true,
-					issues : res.data.rows
+					issues: res.data.issues
 				});
 			},
 			error => {
@@ -40,19 +40,21 @@ export class IssueGrid extends React.Component {
 		} else {
 			return (
 				<div className="container">
-					{issues.map(issue => (
-						<div className="row">
-							<div className="col">
-								<IssueCard
-									id={issue.id}
-									heading={issue.heading}
-									time={issue.time}
-									description={issue.description}
-									status={issue.status}
-								/>
+					{
+						issues.map(issue => (
+							<div className="row">
+								<div className="col">
+									<IssueCard
+										id={issue.id}
+										heading={issue.heading}
+										description={issue.description}
+										status={issue.status}
+										time={issue.time}
+									/>
+								</div>
 							</div>
-						</div>
-					))}
+						))
+					}
 				</div>
 			);
 		}
