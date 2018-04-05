@@ -1,6 +1,7 @@
 set foreign_key_checks = 0;
 drop table if exists users;
 drop table if exists developers;
+drop table if exists admins;
 drop table if exists issues;
 drop table if exists user_issue_open;
 drop table if exists developer_issue_assignment;
@@ -15,6 +16,14 @@ create table users (
 );
 
 create table developers (
+  id int not null auto_increment,
+  name varchar(20) not null,
+  email varchar(35) not null,
+  password varchar(50) not null,
+  primary key (id)
+);
+
+create table admins (
   id int not null auto_increment,
   name varchar(20) not null,
   email varchar(35) not null,
@@ -56,6 +65,10 @@ insert into developers values
 (1,'Foo','foofoo@gmail.com','#hashisahash'),
 (2,'Sam','samuel@yahoo.com','$%%%%R123ijs'),
 (3,'Dave','davedave@hotmail.com','$%%1515frvf');
+
+insert into admins values
+(1,'Josh','peoplepeepes@gmail.com','#4th4hthtdfgdfg'),
+(2,'Sophie','yesnoyes@yahoo.com','$%%%%ghrhrh');
 
 insert into issues values
 (1, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'open'),

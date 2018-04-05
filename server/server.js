@@ -123,6 +123,28 @@ app.get('/developers/:developerId/issues', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+app.get('/admins', (req, res) => {
+	db.query('select id, name, email from admins')
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ admins: rows });
+		})
+		.catch(error => res.status(400).send());
+});
+
+app.get('/admins/:id', (req, res) => {
+	db.query('select id, name, email from admins where id = ?', [req.params.id])
+		.then(rows => {
+			if (rows.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ admin: rows[0] });
+		})
+		.catch(error => res.status(400).send());
+});
+
 app.post('/issues/:userId', async (req, res) => {
 	const { heading, description } = req.body;
 	try {

@@ -179,6 +179,46 @@ describe('GET /developers/:developerId/issues', () => {
 	});
 });
 
+describe('GET /admins', () => {
+	it('should return all 2 admins', (done) => {
+		request(app)
+			.get('/admins')
+			.expect(200)
+			.expect(res => {
+				expect(res.body.admins.length).toBe(2);
+				expect(res.body.admins[0]).toIncludeKeys(['id', 'name', 'email']);
+			})
+			.end(done);
+	});
+});
+
+describe('GET /admins/:id', () => {
+	it('should return an admin', (done) => {
+		request(app)
+			.get('/admins/1')
+			.expect(200)
+			.expect(res => {
+				expect(res.body.admin).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.admin.id).toBeA('number');
+			})
+			.end(done);
+	});
+
+	it('should return 404 if id invalid', (done) => {
+		request(app)
+			.get('/admins/abc')
+			.expect(404)
+			.end(done);
+	});
+
+	it('should return 404 if id not found', (done) => {
+		request(app)
+			.get('/admins/9999')
+			.expect(404)
+			.end(done);
+	});
+});
+
 describe('POST /issues/:userId', () => {
 	it('should post an issue and update which user posted it', (done) => {
 		const userId = 1;
