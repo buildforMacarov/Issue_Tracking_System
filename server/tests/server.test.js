@@ -338,4 +338,26 @@ describe('POST /assignment', () => {
 					.catch(done);
 			});
 	});
+
+	it('should not assign an issue to a non-existent developer', (done) => {
+		const developerId = 999;
+		const issueId = 1;
+		request(app)
+			.post('/assignment')
+			.send({ developerId, issueId })
+			.expect(400)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				const sql = 'select * from developer_issue_assignment where developer_id = ? and issue_id = ?';
+				db.query(sql, [developerId, issueId])
+					.then(rows => {
+						expect(rows.length).toBe(0);
+						done();
+					})
+					.catch(done);
+			});
+	});
 });
