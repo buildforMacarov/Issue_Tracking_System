@@ -173,6 +173,18 @@ app.post('/issues/:userId', async (req, res) => {
 	}
 });
 
+app.post('/assignment', (req, res) => {
+	const { developerId, issueId } = req.body;
+	db.query('insert into developer_issue_assignment set ?', {
+		developer_id: developerId,
+		issue_id: issueId
+	})
+	.then(result => {
+		res.status(200).send();
+	})
+	.catch(error => res.status(400).send());
+});
+
 const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
 });

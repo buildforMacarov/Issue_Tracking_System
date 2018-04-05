@@ -283,3 +283,59 @@ describe('POST /issues/:userId', () => {
 			.end(done);
 	});
 });
+
+describe('POST /assignment', () => {
+	it('should assign an issue to a developer', (done) => {
+		const developerId = 1;
+		const issueId = 3;
+		request(app)
+			.post('/assignment')
+			.send({ developerId, issueId })
+			.expect(200)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+				request(app)
+					.get(`/developers/${developerId}/issues`)
+					.expect(200)
+					.expect(res => {
+						const issueIds = res.body.issues.map(issue => issue.id);
+						expect(issueIds).toEqual([1, issueId]);
+					})
+					.end(done);
+			});
+	});
+
+	it('should not assign an issue to a developer if already assigned to him', (done) => {
+		const developerId = 1;
+		const issueId = 1;
+		request(app)
+			.post('/assignment')
+			.send({ developerId, issueId })
+			.expect(400)
+			.end(done)
+	});
+
+	it('should not assign a non-existent issue to a developer', (done) => {
+		const developerId = 1;
+		const issueId = 999;
+		request(app)
+			.post('/assignment')
+			.send({ developerId, issueId })
+			.expect(400)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				const sql = 'select * from developer_issue_assignment where developer_id = ? and issue_id = ?';
+				db.query(sql, [developerId, issueId])
+					.then(rows => {
+						expect(rows.length).toBe(0);
+						done();
+					})
+					.catch(done);
+			});
+	});
+});
