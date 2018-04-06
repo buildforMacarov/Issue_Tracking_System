@@ -40,6 +40,12 @@ create table issues (
   primary key (id)
 );
 
+create table login_tokens (
+  id int not null auto_increment,
+  token varchar(150) not null,
+  primary key (id)
+);
+
 create table user_issue_open (
   user_id int not null,
   issue_id int not null,
@@ -54,6 +60,14 @@ create table developer_issue_assignment (
   primary key (developer_id, issue_id),
   foreign key (developer_id) references developers(id),
   foreign key (issue_id) references issues(id)
+);
+
+create table user_tokens (
+  user_id int not null,
+  token_id int not null,
+  primary key (user_id, token_id),
+  foreign key (user_id) references users(id),
+  foreign key (token_id) references login_tokens(id)
 );
 
 insert into users values
@@ -75,6 +89,11 @@ insert into issues values
 (2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'open'),
 (3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open');
 
+insert into login_tokens values
+(null, 'lskdjflkff2oef92e8fu28efkjl'),
+(null, 'flk2jef0u2e0fi2okefj08dfi02'),
+(null, 'lfkj2-8f0hfkdfjoi29efo2eifj');
+
 insert into user_issue_open values
 (2, 1),
 (1, 2),
@@ -84,3 +103,8 @@ insert into developer_issue_assignment values
 (3, 1),
 (1, 1),
 (3, 2);
+
+insert into user_tokens values
+(2, 1),
+(3, 2),
+(2, 3);
