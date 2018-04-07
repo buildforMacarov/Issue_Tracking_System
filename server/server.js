@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const db = require('./db/database');
 const User = require('./models/user');
 const Developer = require('./models/developer');
+const Admin = require('./models/admin');
 const logger = require('./middleware/logger');
 
 const app = express();
@@ -140,23 +141,33 @@ app.get('/developers/:developerId/issues', (req, res) => {
 });
 
 app.get('/admins', (req, res) => {
-	db.query('select id, name, email from admins')
-		.then(rows => {
-			if (rows.length === 0) {
+	Admin.findAll()
+		.then(admins => {
+			if (admins.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ admins: rows });
+			admins = admins.map(admin => ({
+				id: admin.id,
+				name: admin.name,
+				email: admin.email
+			}));
+			res.json({ admins });
 		})
 		.catch(error => res.status(400).send());
 });
 
 app.get('/admins/:id', (req, res) => {
-	db.query('select id, name, email from admins where id = ?', [req.params.id])
-		.then(rows => {
-			if (rows.length === 0) {
+	Admin.findById(req.params.id)
+		.then(admin => {
+			if (!admin) {
 				return res.status(404).send();
 			}
-			res.json({ admin: rows[0] });
+			admin = {
+				id: admin.id,
+				name: admin.name,
+				email: admin.email
+			};
+			res.json({ admin });
 		})
 		.catch(error => res.status(400).send());
 });
