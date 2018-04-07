@@ -361,3 +361,41 @@ describe('POST /assignment', () => {
 			});
 	});
 });
+
+describe('POST /users/login', () => {
+	it('should log in a user', () => {
+		const user = {
+			id: 1,
+			name: 'Zenkov',
+			email: 'tenkov@gmail.com',
+			password: 'mansnothot1432'),
+		};
+		request(app)
+			.post('/users/login')
+			.send({
+				email: user.email,
+				password: user.password
+			})
+			.expect(200)
+			.expect(res => expect(res.headers['x-auth']).toExist())
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				// get list all tokens of a user
+				const sql = `
+					select login_tokens.*
+					from users inner join user_tokens on users.id = user_tokens.user_id
+					inner join login_tokens on user_tokens.token_id = login_tokens.id
+					where users.id = ?
+				`;
+				db.query(sql, [user.id])
+					.then(rows => {
+						console.log(JSON.stringify(rows, null, 4));
+						done();
+					})
+					.catch(done);
+			});
+	})
+});

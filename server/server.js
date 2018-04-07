@@ -2,9 +2,11 @@ require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 const Database = require('./db/database');
 const logger = require('./middleware/logger');
+const { authenticateUser } = require('./middleware/authenticate');
 
 const app = express();
 const db = new Database({
@@ -183,6 +185,30 @@ app.post('/assignment', (req, res) => {
 		res.status(200).send();
 	})
 	.catch(error => res.status(400).send());
+});
+
+app.post('/users/login', (req, res) => {
+	const { email, password } = req.body;
+
+	db.query('select * from users where email = ?', [email])
+		.then(rows => {
+			if (rows.length === 0) {
+				return Promise.reject({ message: 'Email not registered' });
+			}
+			const user = rows[0];
+			bcrypt.compare(password, user.password)
+				.then(compareRes => {
+					if (compareRes) {
+						return user;
+					} else {
+						return Promise.reject({ message: 'Invalid password' });
+					}
+				});
+		})
+		.then(user => {
+			// generateAuthToken
+		})
+		.catch(error => res.status(404).send());
 });
 
 const server = app.listen(3000, () => {
