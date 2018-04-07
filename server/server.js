@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const db = require('./db/database');
 const User = require('./models/user');
+const Developer = require('./models/developer');
 const logger = require('./middleware/logger');
 
 const app = express();
@@ -90,40 +91,50 @@ app.get('/users/:userId/issues', (req, res) => {
 });
 
 app.get('/developers', (req, res) => {
-	db.query('SELECT id, name, email FROM developers')
-		.then(rows => {
-			if (rows.length === 0) {
+	Developer.findAll()
+		.then(devs => {
+			if (devs.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ developers: rows });
+			devs = devs.map(dev => ({
+				id: dev.id,
+				name: dev.name,
+				email: dev.email
+			}));
+			res.json({ developers: devs });
 		})
 		.catch(error => res.status(400).send());
 });
 
 app.get('/developers/:id', (req, res) => {
-	db.query('SELECT id, name, email FROM developers WHERE id = ?', [req.params.id])
-		.then(rows => {
-			if (rows.length === 0) {
+	Developer.findById(req.params.id)
+		.then(dev => {
+			if (!dev) {
 				return res.status(404).send();
 			}
-			res.json({ developer: rows[0] });
+			dev = {
+				id: dev.id,
+				name: dev.name,
+				email: dev.email
+			};
+			res.json({ developer: dev });
 		})
 		.catch(error => res.status(400).send());
 });
 
 app.get('/developers/:developerId/issues', (req, res) => {
-	const sql = `
-		SELECT issues.*
-		FROM developers INNER JOIN developer_issue_assignment ON developers.id = developer_issue_assignment.developer_id
-		INNER JOIN issues ON developer_issue_assignment.issue_id = issues.id
-		WHERE developers.id = ?
-	`;
-	db.query(sql, [req.params.developerId])
-		.then(rows => {
-			if (rows.length === 0) {
+	Developer.findById(req.params.developerId)
+		.then(dev => {
+			if (!dev) {
 				return res.status(404).send();
 			}
-			res.json({ issues: rows });
+			return dev.findAllIssues();
+		})
+		.then(issues => {
+			if (issues.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ issues });
 		})
 		.catch(error => res.status(400).send());
 });
