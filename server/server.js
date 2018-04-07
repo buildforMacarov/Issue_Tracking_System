@@ -42,39 +42,49 @@ app.get('/issues/:id', (req, res) => {
 
 app.get('/users', (req, res) => {
 	User.findAll()
-		.then(rows => {
-			if (rows.length === 0) {
+		.then(users => {
+			if (users.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ users: rows });
+			users = users.map(user => ({
+				id: user.id,
+				email: user.email,
+				name: user.name
+			}));
+			res.json({ users });
 		})
 		.catch(error => res.status(400).send());
 });
 
 app.get('/users/:id', (req, res) => {
-	db.query('SELECT id, name, email FROM users WHERE id = ?', [req.params.id])
-		.then(rows => {
-			if (rows.length === 0) {
+	User.findById(req.params.id)
+		.then(user => {
+			if (!user) {
 				return res.status(404).send();
 			}
-			res.json({ user: rows[0] });
+			user = {
+				id: user.id,
+				email: user.email,
+				name: user.name
+			};
+			res.json({ user });
 		})
 		.catch(error => res.status(400).send());
 });
 
 app.get('/users/:userId/issues', (req, res) => {
-	const sql = `
-		SELECT issues.*
-		FROM users INNER JOIN user_issue_open ON users.id = user_issue_open.user_id
-		INNER JOIN issues ON user_issue_open.issue_id = issues.id
-		WHERE users.id = ?
-	`;
-	db.query(sql, [req.params.userId])
-		.then(rows => {
-			if (rows.length === 0) {
+	User.findById(req.params.userId)
+		.then(user => {
+			if (!user) {
 				return res.status(404).send();
 			}
-			res.json({ issues: rows });
+			return user.findAllIssues();
+		})
+		.then(issues => {
+			if (issues.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ issues });
 		})
 		.catch(error => res.status(400).send());
 });
