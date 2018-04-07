@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt');
+
 const db = require('../db/database');
 const Issue = require('./issue');
 
@@ -52,11 +54,28 @@ class User {
 
 	static findByEmail(email) {
 		return db.query('select * from ?? where email = ?', [User.table, email])
-			then(users => {
+			.then(users => {
 				if (users.length === 0) {
 					return Promise.resolve(null);
 				}
 				return new User(users[0]);
+			});
+	}
+
+	static findByCredentials(email, password) {
+		return User.findByEmail(email)
+			.then(user => {
+				if (!user) {
+					return Promise.reject({ message: 'Email not registered' });
+				}
+				return bcrypt.compare(password, user.password)
+					.then(res => {
+						if (res) {
+							return user;
+						} else {
+							return Promise.reject({ message: 'Invalid password' });
+						}
+					});
 			});
 	}
 }
