@@ -3,14 +3,16 @@ drop table if exists users;
 drop table if exists developers;
 drop table if exists admins;
 drop table if exists issues;
+drop table if exists login_tokens;
 drop table if exists user_issue_open;
 drop table if exists developer_issue_assignment;
+drop table if exists user_tokens;
 set foreign_key_checks = 1;
 
 create table users (
   id int not null auto_increment,
   name varchar(20) not null,
-  email varchar(35) not null,
+  email varchar(35) not null unique,
   password varchar(50) not null,
   primary key (id)
 );
@@ -18,7 +20,7 @@ create table users (
 create table developers (
   id int not null auto_increment,
   name varchar(20) not null,
-  email varchar(35) not null,
+  email varchar(35) not null unique,
   password varchar(50) not null,
   primary key (id)
 );
@@ -26,7 +28,7 @@ create table developers (
 create table admins (
   id int not null auto_increment,
   name varchar(20) not null,
-  email varchar(35) not null,
+  email varchar(35) not null unique,
   password varchar(50) not null,
   primary key (id)
 );
@@ -42,7 +44,7 @@ create table issues (
 
 create table login_tokens (
   id int not null auto_increment,
-  token varchar(150) not null,
+  token text not null,
   primary key (id)
 );
 
@@ -89,11 +91,6 @@ insert into issues values
 (2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'open'),
 (3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open');
 
-insert into login_tokens values
-(null, 'lskdjflkff2oef92e8fu28efkjl'),
-(null, 'flk2jef0u2e0fi2okefj08dfi02'),
-(null, 'lfkj2-8f0hfkdfjoi29efo2eifj');
-
 insert into user_issue_open values
 (2, 1),
 (1, 2),
@@ -103,8 +100,3 @@ insert into developer_issue_assignment values
 (3, 1),
 (1, 1),
 (3, 2);
-
-insert into user_tokens values
-(2, 1),
-(3, 2),
-(2, 3);
