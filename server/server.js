@@ -7,6 +7,7 @@ const db = require('./db/database');
 const User = require('./models/user');
 const Developer = require('./models/developer');
 const Admin = require('./models/admin');
+const Issue = require('./models/issue');
 const logger = require('./middleware/logger');
 
 const app = express();
@@ -21,23 +22,23 @@ app.use(logger);
 app.use(express.static(__dirname + '/../public'));
 
 app.get('/issues', (req, res) => {
-	db.query('SELECT * FROM issues')
-		.then(rows => {
-			if (rows.length === 0) {
+	Issue.findAll()
+		.then(issues => {
+			if (issues.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ issues: rows });
+			res.json({ issues });
 		})
 		.catch(error => res.status(400).send());
 });
 
 app.get('/issues/:id', (req, res) => {
-	db.query('SELECT * FROM issues WHERE id = ?', [req.params.id])
-		.then(rows => {
-			if (rows.length === 0) {
+	Issue.findById(req.params.id)
+		.then(issue => {
+			if (!issue) {
 				return res.status(404).send();
 			}
-			res.json({ issue: rows[0] });
+			res.json({ issue });
 		})
 		.catch(error => res.status(400).send());
 });
