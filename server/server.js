@@ -3,16 +3,11 @@ require('dotenv').config();
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const Database = require('./db/database');
+const db = require('./db/database');
+const User = require('./models/user');
 const logger = require('./middleware/logger');
 
 const app = express();
-const db = new Database({
-	user: process.env.DBUSER,
-	password: process.env.PASSWORD,  // needs to be defined if DBUSER === 'root'
-	host: 'localhost',
-	database: process.env.DB
-});
 
 db.connect()
 	.then(response => console.log(response, `: ${process.env.DB} db`));
@@ -46,7 +41,7 @@ app.get('/issues/:id', (req, res) => {
 });
 
 app.get('/users', (req, res) => {
-	db.query('SELECT id, name, email FROM users')
+	User.findAll()
 		.then(rows => {
 			if (rows.length === 0) {
 				return res.status(404).send();
@@ -189,4 +184,4 @@ const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
 });
 
-module.exports = { app, db };
+module.exports = { app };

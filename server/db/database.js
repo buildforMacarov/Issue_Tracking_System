@@ -41,4 +41,12 @@ class Database {
 	}
 }
 
-module.exports = Database;
+// will be instantiated just once despite being required by multiple other modules
+const db = new Database({
+	user: process.env.DBUSER,
+	password: process.env.PASSWORD,  // needs to be defined if DBUSER === 'root'
+	host: 'localhost',
+	database: process.env.DB
+});
+
+module.exports = db;
