@@ -2,7 +2,7 @@ const db = require('../db/database');
 
 class Issue {
 	constructor(config) {
-		this.id = config.id;
+		this.id = config.id || null;
 		this.heading = config.heading;
 		this.description = config.description;
 		this.time = config.time;

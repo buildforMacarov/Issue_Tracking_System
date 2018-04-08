@@ -4,7 +4,7 @@ const db = require('../db/database');
 
 class Admin {
 	constructor(config) {
-		this.id = config.id;
+		this.id = config.id || null;
 		this.name = config.name;
 		this.email = config.email;
 		this.password = config.password;
