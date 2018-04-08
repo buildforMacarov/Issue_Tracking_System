@@ -14,6 +14,7 @@ const Issue = require('./models/issue');
 const userRouter = require('./routes/user');
 const issueRouter = require('./routes/issue');
 const developerRouter = require('./routes/developer');
+const adminRouter = require('./routes/admin');
 
 const logger = require('./middleware/logger');
 const { authenticateUser } = require('./middleware/authenticate');
@@ -32,30 +33,7 @@ app.use(express.static(__dirname + '/../public'));
 app.use('/issues', issueRouter);
 app.use('/users', userRouter);
 app.use('/developers', developerRouter);
-
-app.get('/admins', (req, res) => {
-	Admin.findAll()
-		.then(admins => {
-			if (admins.length === 0) {
-				return res.status(404).send();
-			}
-			admins = admins.map(admin => admin.toPublic());
-			res.json({ admins });
-		})
-		.catch(error => res.status(400).send());
-});
-
-app.get('/admins/:id', (req, res) => {
-	Admin.findById(req.params.id)
-		.then(admin => {
-			if (!admin) {
-				return res.status(404).send();
-			}
-			admin = admin.toPublic();
-			res.json({ admin });
-		})
-		.catch(error => res.status(400).send());
-});
+app.use('/admins', adminRouter);
 
 app.post('/issues/:userId', (req, res) => {
 	const { heading, description } = req.body;
