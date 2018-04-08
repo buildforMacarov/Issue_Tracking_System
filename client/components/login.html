@@ -54,25 +54,40 @@
         <script type="text/javascript">
 
             $('form').submit(function() {
-                $.ajax({
-                    async: true,
-                    method: 'POST',
-                    url: 'page2.php',
-                    data: $( this ).serialize(),
-                    success: function() {
-                         //window.open("http://www.stackoverflow.com"); //this page will be open in new tab
-                    }
-                });
-
-                $.ajax({
-                    async: true,
-                    method: 'POST',
-                    url: 'page1.php',
-                    data: $( this ).serialize(),
-                    success: function() {
-                        //window.location.href = "http://stackoverflow.com"; //redirect to this page
-                    }
-                });
+                if($('#account-type1')) {
+                    $.ajax({
+                        async: true,
+                        method: 'POST',
+                        url: '/users/login',
+                        data: $( this ).serialize(),
+                        success: function() {
+                            //window.location.href = "http://stackoverflow.com"; //redirect to this page
+                        }
+                    });
+                }
+                else if($('#account-type2')) {
+                    $.ajax({
+                        async: true,
+                        method: 'POST',
+                        url: '/developers/login',
+                        data: $( this ).serialize(),
+                        success: function() {
+                            //window.location.href = "http://stackoverflow.com"; //redirect to this page
+                        }
+                    });
+                }
+                else if($('#account-tpe3')) {
+                    $.ajax({
+                        async: true,
+                        method: 'POST',
+                        url: '/admins/login',
+                        data: $( this ).serialize(),
+                        success: function() {
+                            //window.open("http://www.stackoverflow.com"); //this page will be open in new tab
+                        }
+                    });
+                }
+                
             });
 
         </script>
