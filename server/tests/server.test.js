@@ -86,10 +86,12 @@ describe('GET /users/:id', () => {
 	});
 });
 
-describe('GET /users/:userId/issues', () => {
+describe('GET /users/issues', () => {
 	it('should return all of a user\'s issues', (done) => {
+		// get issues of user 2 using token of id 3 of user 2.
 		request(app)
-			.get('/users/2/issues')
+			.get('/users/issues')
+			.set('x-auth', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjE2M30.GJxwAC7fRAF9UzQ4AaP3r5bnWG8TPXZgw-jfYx0aaJE')
 			.expect(200)
 			.expect(res => {
 				const issueIds = res.body.issues.map(issue => issue.id);
@@ -99,17 +101,18 @@ describe('GET /users/:userId/issues', () => {
 			.end(done);
 	});
 
-	it('should return 404 if userId invalid', (done) => {
+	it('should return 401 if no token in header', (done) => {
 		request(app)
-			.get('/users/abc/issues')
-			.expect(404)
+			.get('/users/issues')
+			.expect(401)
 			.end(done);
 	});
 
-	it('should return 404 if userId not found', (done) => {
+	it('should return 401 if invalid token', (done) => {
 		request(app)
-			.get('/users/9999/issues')
-			.expect(404)
+			.get('/users/issues')
+			.set('x-auth', 'aaabbbccc')
+			.expect(401)
 			.end(done);
 	});
 });
@@ -372,6 +375,7 @@ describe('POST /assignment', () => {
 
 describe('POST /users/login', () => {
 	it('should log in a user', (done) => {
+		// user 1 already has one token
 		const user = {
 			id: 1,
 			name: 'Zenkov',
@@ -402,8 +406,8 @@ describe('POST /users/login', () => {
 						return user.findAllTokens();
 					})
 					.then(tokens => {
-						expect(tokens.length).toBe(1);
-						expect(tokens[0].tokenVal).toBe(res.headers['x-auth']);
+						expect(tokens.length).toBe(2);
+						expect(tokens[1].tokenVal).toBe(res.headers['x-auth']);
 						done();
 					})
 					.catch(done);

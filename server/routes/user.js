@@ -2,6 +2,8 @@ const express = require('express');
 
 const User = require('../models/user');
 
+const { authenticateUser } = require('../middleware/authenticate');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -16,6 +18,17 @@ router.get('/', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.get('/issues', authenticateUser, (req, res) => {
+	req.user.findAllIssues()
+		.then(issues => {
+			if (issues.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ issues });
+		})
+		.catch(error => res.status(400).send());
+});
+
 router.get('/:id', (req, res) => {
 	User.findById(req.params.id)
 		.then(user => {
@@ -24,23 +37,6 @@ router.get('/:id', (req, res) => {
 			}
 			user = user.toPublic();
 			res.json({ user });
-		})
-		.catch(error => res.status(400).send());
-});
-
-router.get('/:userId/issues', (req, res) => {
-	User.findById(req.params.userId)
-		.then(user => {
-			if (!user) {
-				return res.status(404).send();
-			}
-			return user.findAllIssues();
-		})
-		.then(issues => {
-			if (issues.length === 0) {
-				return res.status(404).send();
-			}
-			res.json({ issues });
 		})
 		.catch(error => res.status(400).send());
 });

@@ -94,6 +94,11 @@ insert into issues values
 (2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'open'),
 (3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open');
 
+insert into login_tokens values
+(1, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiR4eDJuUDZBZVhlV1FzVllXWDYxSVh1N0FWOTc5dkpkOUd3ODFzR0c3aWZSLzU5TE9VODRYMiIsImlhdCI6MTUyMzIxMjA3MH0.zIDcd1ZlMaa3EVIntRMuWxYQ_8REbrJpEHPMAJWAdEw'),
+(2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjEzNn0.-OfyeL1y8ONTKiVpLFybxNnPVPGmWV4Xx1X7s75yflM'),
+(3, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjE2M30.GJxwAC7fRAF9UzQ4AaP3r5bnWG8TPXZgw-jfYx0aaJE');
+
 insert into user_issue_open values
 (2, 1),
 (1, 2),
@@ -105,3 +110,8 @@ insert into developer_issue_assignment values
 (2, 3, 2),
 (2, 2, 1),
 (2, 2, 2);
+
+insert into user_tokens values
+(1, 1),
+(2, 2),
+(2, 3);
