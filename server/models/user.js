@@ -27,6 +27,14 @@ class User {
             });
 	}
 
+	toPublic() {
+		return {
+			id: this.id,
+			name: this.name,
+			email: this.email
+		};
+	}
+
 	findAllIssues() {
 		const sql = `
 			SELECT ${Issue.table}.*
@@ -34,7 +42,8 @@ class User {
 			INNER JOIN ${Issue.table} ON ${User.rel.issue}.issue_id = ${Issue.table}.id
 			WHERE ${User.table}.id = ?
 		`;
-		return db.query(sql, [this.id]);
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Issue(row)));
 	}
 
 	findAllTokens() {
@@ -44,7 +53,8 @@ class User {
 			inner join ${Token.table} on ${User.rel.token}.token_id = ${Token.table}.id
 			where ${User.table}.id = ?
 		`;
-		return db.query(sql, [this.id]);
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Token(row)));
 	}
 
 	generateAuthToken() {
@@ -80,26 +90,27 @@ class User {
 	/* STATIC METHODS */
 
 	static findAll() {
-		return db.query('select * from ??', [User.table]);
+		return db.query('select * from ??', [User.table])
+			.then(rows => rows.map(row => new User(row)));
 	}
 
 	static findById(id) {
 		return db.query('select * from ?? where id = ?', [User.table, id])
-			.then(users => {
-				if (users.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new User(users[0]);
+				return new User(rows[0]);
 			});
 	}
 
 	static findByEmail(email) {
 		return db.query('select * from ?? where email = ?', [User.table, email])
-			.then(users => {
-				if (users.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new User(users[0]);
+				return new User(rows[0]);
 			});
 	}
 
@@ -135,11 +146,11 @@ class User {
 			where ${Token.table}.tokenVal = ? and ${User.table}.password = ?
 		`;
 		return db.query(sql, [tokenVal, decoded.password])
-			.then(users => {
-				if (users.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new User(user[0]);
+				return new User(rows[0]);
 			});
 	}
 }

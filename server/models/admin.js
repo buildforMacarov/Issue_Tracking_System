@@ -26,26 +26,27 @@ class Admin {
 	/* STATIC METHODS */
 
 	static findAll() {
-		return db.query('select * from ??', [Admin.table]);
+		return db.query('select * from ??', [Admin.table])
+			.then(rows => rows.map(row => new Admin(row)));
 	}
 
 	static findById(id) {
 		return db.query('select * from ?? where id = ?', [Admin.table, id])
-			.then(admins => {
-				if (admins.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new Admin(admins[0]);
+				return new Admin(rows[0]);
 			});
 	}
 
 	static findByEmail(email) {
 		return db.query('select * from ?? where email = ?', [Admin.table, email])
-			.then(admins => {
-				if (admins.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new Admin(admins[0]);
+				return new Admin(rows[0]);
 			});
 	}
 

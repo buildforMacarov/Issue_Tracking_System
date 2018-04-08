@@ -20,7 +20,8 @@ class Developer {
 			INNER JOIN ${Issue.table} ON ${Developer.rel.issue}.issue_id = ${Issue.table}.id
 			WHERE ${Developer.table}.id = ?
 		`;
-		return db.query(sql, [this.id]);
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Issue(row)));
 	}
 
 
@@ -39,26 +40,27 @@ class Developer {
 	/* STATIC METHODS */
 
 	static findAll() {
-		return db.query('select * from ??', [Developer.table]);
+		return db.query('select * from ??', [Developer.table])
+			.then(rows => rows.map(row => new Developer(row)));
 	}
 
 	static findById(id) {
 		return db.query('select * from ?? where id = ?', [Developer.table, id])
-			.then(devs => {
-				if (devs.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new Developer(devs[0]);
+				return new Developer(rows[0]);
 			});
 	}
 
 	static findByEmail(email) {
 		return db.query('select * from ?? where email = ?', [Developer.table, email])
-			.then(devs => {
-				if (devs.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new Developer(devs[0]);
+				return new Developer(rows[0]);
 			});
 	}
 

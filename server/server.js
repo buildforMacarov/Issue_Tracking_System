@@ -253,10 +253,7 @@ app.post('/users/signup', (req, res) => {
 					res.header('x-auth', token.tokenVal).send({ user: _user });
 				});
 		})
-		.catch(error => {
-			debugger;
-			res.status(400).send()
-		});
+		.catch(error => res.status(400).send());
 });
 
 const server = app.listen(3000, () => {
