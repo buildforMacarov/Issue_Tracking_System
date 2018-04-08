@@ -1,7 +1,10 @@
 const request = require('supertest');
 const expect = require('expect');
 
-const { app, db } = require('./../server');
+const { app } = require('./../server');
+const db = require('./../db/database');
+
+const User = require('../models/user');
 
 describe('GET /issues', () => {
 	it('should return all 3 issues', (done) => {
@@ -112,12 +115,12 @@ describe('GET /users/:userId/issues', () => {
 });
 
 describe('GET /developers', () => {
-	it('should return all 3 developers', (done) => {
+	it('should return all 4 developers', (done) => {
 		request(app)
 			.get('/developers')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.developers.length).toBe(3);
+				expect(res.body.developers.length).toBe(4);
 				expect(res.body.developers[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
@@ -286,11 +289,12 @@ describe('POST /issues/:userId', () => {
 
 describe('POST /assignment', () => {
 	it('should assign an issue to a developer', (done) => {
+		const adminId = 2;
 		const developerId = 1;
 		const issueId = 3;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(200)
 			.end((err, res) => {
 				if (err) {
@@ -301,6 +305,7 @@ describe('POST /assignment', () => {
 					.expect(200)
 					.expect(res => {
 						const issueIds = res.body.issues.map(issue => issue.id);
+						expect(res.body.issues.length).toBe(2);
 						expect(issueIds).toEqual([1, issueId]);
 					})
 					.end(done);
@@ -308,21 +313,23 @@ describe('POST /assignment', () => {
 	});
 
 	it('should not assign an issue to a developer if already assigned to him', (done) => {
+		const adminId = 2;
 		const developerId = 1;
 		const issueId = 1;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(400)
 			.end(done)
 	});
 
 	it('should not assign a non-existent issue to a developer', (done) => {
+		const adminId = 2;
 		const developerId = 1;
 		const issueId = 999;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(400)
 			.end((err, res) => {
 				if (err) {
@@ -340,11 +347,12 @@ describe('POST /assignment', () => {
 	});
 
 	it('should not assign an issue to a non-existent developer', (done) => {
+		const adminId = 2;
 		const developerId = 999;
 		const issueId = 1;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(400)
 			.end((err, res) => {
 				if (err) {
@@ -359,5 +367,135 @@ describe('POST /assignment', () => {
 					})
 					.catch(done);
 			});
+	});
+});
+
+describe('POST /users/login', () => {
+	it('should log in a user', (done) => {
+		const user = {
+			id: 1,
+			name: 'Zenkov',
+			email: 'tenkov@gmail.com',
+			password: 'mansnothot1432!',
+		};
+		request(app)
+			.post('/users/login')
+			.send({
+				email: user.email,
+				password: user.password
+			})
+			.expect(200)
+			.expect(res => {
+				expect(res.headers['x-auth']).toExist();
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				User.findById(user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject({ message: `No user with id of ${user.id} ?!?!` });
+						}
+						return user.findAllTokens();
+					})
+					.then(tokens => {
+						expect(tokens.length).toBe(1);
+						expect(tokens[0].tokenVal).toBe(res.headers['x-auth']);
+						done();
+					})
+					.catch(done);
+			});
+	});
+
+	it('should not log in a user if unregistered email', (done) => {
+		const email = 'unregisteredemail@email.co';
+		const password = 'mansnothot1432!';
+
+		request(app)
+			.post('/users/login')
+			.send({ email, password })
+			.expect(404)
+			.end(done);
+	});
+
+	it('should not log in a user if invalid password', (done) => {
+		const user = {
+			id: 3,
+			name: 'Dreskonivich',
+			email: 'dreskonmail@hotmail.com',
+			password: 'ilikespaceM00n-wrongpassword'
+		};
+		request(app)
+			.post('/users/login')
+			.send({
+				email: user.email,
+				password: user.password
+			})
+			.expect(404)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				User.findById(user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject({ message: `No user with id of ${user.id} ?!?!` });
+						}
+						return user.findAllTokens();
+					})
+					.then(tokens => {
+						expect(tokens.length).toBe(0);
+						done();
+					})
+					.catch(done);
+			});
+	});
+});
+
+describe('POST /users/signup', () => {
+	it('should sign up (insert) a user', (done) => {
+		const name = 'NewUser123';
+		const email = 'newuseremail@email.com';
+		const password = 'newUserPassw0rd';
+
+		request(app)
+			.post('/users/signup')
+			.send({ name, email, password })
+			.expect(200)
+			.expect(res => {
+				expect(res.headers['x-auth']).toExist();
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.user).toInclude({ name, email });
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+				User.findById(res.body.user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject();
+						}
+						expect(user).toInclude(res.body.user);
+						done();
+					})
+					.catch(done);
+			});
+	});
+
+	it('should not sign up a user if email is taken', (done) => {
+		const name = 'NewUser123';
+		const email = 'tenkov@gmail.com';  // user id = 1's email
+		const password = 'newUserPassw0rd';
+
+		request(app)
+			.post('/users/signup')
+			.send({ name, email, password })
+			.expect(400)
+			.end(done);
 	});
 });
