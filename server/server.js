@@ -53,11 +53,7 @@ app.get('/users', (req, res) => {
 			if (users.length === 0) {
 				return res.status(404).send();
 			}
-			users = users.map(user => ({
-				id: user.id,
-				email: user.email,
-				name: user.name
-			}));
+			users = users.map(user => user.toPublic());
 			res.json({ users });
 		})
 		.catch(error => res.status(400).send());
@@ -69,11 +65,7 @@ app.get('/users/:id', (req, res) => {
 			if (!user) {
 				return res.status(404).send();
 			}
-			user = {
-				id: user.id,
-				email: user.email,
-				name: user.name
-			};
+			user = user.toPublic();
 			res.json({ user });
 		})
 		.catch(error => res.status(400).send());
@@ -102,11 +94,7 @@ app.get('/developers', (req, res) => {
 			if (devs.length === 0) {
 				return res.status(404).send();
 			}
-			devs = devs.map(dev => ({
-				id: dev.id,
-				name: dev.name,
-				email: dev.email
-			}));
+			devs = devs.map(dev => dev.toPublic());
 			res.json({ developers: devs });
 		})
 		.catch(error => res.status(400).send());
@@ -118,11 +106,7 @@ app.get('/developers/:id', (req, res) => {
 			if (!dev) {
 				return res.status(404).send();
 			}
-			dev = {
-				id: dev.id,
-				name: dev.name,
-				email: dev.email
-			};
+			dev = dev.toPublic();
 			res.json({ developer: dev });
 		})
 		.catch(error => res.status(400).send());
@@ -151,11 +135,7 @@ app.get('/admins', (req, res) => {
 			if (admins.length === 0) {
 				return res.status(404).send();
 			}
-			admins = admins.map(admin => ({
-				id: admin.id,
-				name: admin.name,
-				email: admin.email
-			}));
+			admins = admins.map(admin => admin.toPublic());
 			res.json({ admins });
 		})
 		.catch(error => res.status(400).send());
@@ -167,11 +147,7 @@ app.get('/admins/:id', (req, res) => {
 			if (!admin) {
 				return res.status(404).send();
 			}
-			admin = {
-				id: admin.id,
-				name: admin.name,
-				email: admin.email
-			};
+			admin = admin.toPublic();
 			res.json({ admin });
 		})
 		.catch(error => res.status(400).send());
@@ -210,11 +186,7 @@ app.post('/users/login', (req, res) => {
 		.then(user => {
 			return user.generateAuthToken()
 				.then(token => {
-					user = {
-						id: user.id,
-						name: user.name,
-						email: user.email
-					}
+					user = user.toPublic();
 					res.header('x-auth', token.tokenVal).send({ user });
 				});
 		})
@@ -231,11 +203,7 @@ app.post('/users/signup', (req, res) => {
 		.then(_user => {
 			return _user.generateAuthToken()  // user with an id
 				.then(token => {
-					_user = {
-						id: _user.id,
-						name: _user.name,
-						email: _user.email
-					};
+					_user = _user.toPublic();
 					res.header('x-auth', token.tokenVal).send({ user: _user });
 				});
 		})

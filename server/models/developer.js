@@ -13,6 +13,14 @@ class Developer {
 
 	/* INSTANCE METHODS */
 
+	toPublic() {
+		return {
+			id: this.id,
+			name: this.name,
+			email: this.email
+		};
+	}
+
 	findAllIssues() {
 		const sql = `
 			SELECT ${Issue.table}.*

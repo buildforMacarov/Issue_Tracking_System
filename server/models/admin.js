@@ -12,6 +12,14 @@ class Admin {
 
 	/* INSTANCE METHODS */
 
+	toPublic() {
+		return {
+			id: this.id,
+			name: this.name,
+			email: this.email
+		};
+	}
+
 
 	/* STATIC FIELDS */
 
