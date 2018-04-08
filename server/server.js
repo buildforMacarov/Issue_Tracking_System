@@ -235,6 +235,30 @@ app.post('/users/login', (req, res) => {
 		.catch(error => res.status(404).send());
 });
 
+app.post('/users/signup', (req, res) => {
+	const user = new User({
+		name: req.body.name,
+		email: req.body.email,
+		password: req.body.password
+	});  // user with id = null
+	user.save()
+		.then(_user => {
+			return _user.generateAuthToken()  // user with an id
+				.then(token => {
+					_user = {
+						id: _user.id,
+						name: _user.name,
+						email: _user.email
+					};
+					res.header('x-auth', token.tokenVal).send({ user: _user });
+				});
+		})
+		.catch(error => {
+			debugger;
+			res.status(400).send()
+		});
+});
+
 const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
 });

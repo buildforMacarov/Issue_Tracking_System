@@ -450,3 +450,47 @@ describe('POST /users/login', () => {
 			});
 	});
 });
+
+describe('POST /users/signup', () => {
+	it('should sign up (insert) a user', (done) => {
+		const name = 'NewUser123';
+		const email = 'newuseremail@email.com';
+		const password = 'newUserPassw0rd';
+
+		request(app)
+			.post('/users/signup')
+			.send({ name, email, password })
+			.expect(200)
+			.expect(res => {
+				expect(res.headers['x-auth']).toExist();
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.user).toInclude({ name, email });
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+				User.findById(res.body.user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject();
+						}
+						expect(user).toInclude(res.body.user);
+						done();
+					})
+					.catch(done);
+			});
+	});
+
+	it('should not sign up a user if email is taken', (done) => {
+		const name = 'NewUser123';
+		const email = 'tenkov@gmail.com';  // user id = 1's email
+		const password = 'newUserPassw0rd';
+
+		request(app)
+			.post('/users/signup')
+			.send({ name, email, password })
+			.expect(400)
+			.end(done);
+	});
+});

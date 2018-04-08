@@ -7,13 +7,25 @@ const Token = require('./token');
 
 class User {
 	constructor(config) {
-		this.id = config.id;
+		this.id = config.id || null;
 		this.name = config.name;
 		this.email = config.email;
 		this.password = config.password;
 	}
 
 	/* INSTANCE METHODS */
+
+	save() {
+		return bcrypt.hash(this.password, 12)
+			.then(hash => {
+				this.password = hash;
+				return db.query('insert into ?? set ?', [User.table, this]);
+			})
+            .then(insertRes => {
+                this.id = insertRes.insertId;
+                return this;
+            });
+	}
 
 	findAllIssues() {
 		const sql = `
