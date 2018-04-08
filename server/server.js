@@ -177,33 +177,19 @@ app.get('/admins/:id', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
-// app.post('/issues/:userId', async (req, res) => {
-// 	const { heading, description } = req.body;
-// 	try {
-// 		const users = await db.query('select id, name, email from users where id = ?', [req.params.userId]);
-// 		if (users.length === 0) throw new Error('No user by that ID');
+app.post('/issues/:userId', (req, res) => {
+	const { heading, description } = req.body;
 
-// 		const insertResult = await db.query('INSERT INTO issues SET ?', {
-// 			id: null,
-// 			heading,
-// 			description,
-// 			time: null,
-// 			status: 'open'
-// 		});
-
-// 		const issues = await db.query('SELECT * FROM issues WHERE id = ?', [insertResult.insertId]);
-// 		const relInsertResult = await db.query('insert into user_issue_open set ?', {
-// 			user_id: users[0].id,
-// 			issue_id: issues[0].id
-// 		});
-
-// 		res.send({
-// 			issue: issues[0]
-// 		});
-// 	} catch (error) {
-// 		res.status(400).send();
-// 	}
-// });
+	User.findById(req.params.userId)
+		.then(user => {
+			if (!user) {
+				return Promise.reject();
+			}
+			return user.insertIssue({ heading, description });
+		})
+		.then(issue => res.json({ issue }))
+		.catch(error => res.status(400).send());
+});
 
 app.post('/assignment', (req, res) => {
 	const { developerId, issueId } = req.body;

@@ -5,8 +5,15 @@ class Issue {
 		this.id = config.id || null;
 		this.heading = config.heading;
 		this.description = config.description;
-		this.time = config.time;
-		this.status = config.status;
+		this.time = config.time || null;
+		this.status = config.status || 'open';
+	}
+
+	/* INSTANCE METHODS */
+
+	save() {
+		return db.query('insert into ?? set ?', [Issue.table, this])
+				.then(insertRes => Issue.findById(insertRes.insertId));
 	}
 
 	/* STATIC FIELDS */
@@ -18,16 +25,17 @@ class Issue {
 	/* STATIC METHODS */
 
 	static findAll() {
-		return db.query('select * from ??', [Issue.table]);
+		return db.query('select * from ??', [Issue.table])
+			.then(rows => rows.map(row => new Issue(row)));
 	}
 
 	static findById(id) {
 		return db.query('select * from ?? where id = ?', [Issue.table, id])
-			.then(issues => {
-				if (issues.length === 0) {
+			.then(rows => {
+				if (rows.length === 0) {
 					return Promise.resolve(null);
 				}
-				return new Issue(issues[0]);
+				return new Issue(rows[0]);
 			});
 	}
 }

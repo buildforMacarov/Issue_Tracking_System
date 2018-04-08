@@ -21,10 +21,7 @@ class User {
 				this.password = hash;
 				return db.query('insert into ?? set ?', [User.table, this]);
 			})
-            .then(insertRes => {
-                this.id = insertRes.insertId;
-                return this;
-            });
+			.then(insertRes => User.findById(insertRes.insertId));
 	}
 
 	toPublic() {
@@ -62,14 +59,26 @@ class User {
 			password: this.password
 		}, process.env.JWT_SECRET);
 
-		const token = new Token({ tokenVal });
+		const token = new Token({ tokenVal });  // token without id
 		return token.save()
 				.then(token => {
 					return db.query('insert into ?? set ?', [User.rel.token, {
 						user_id: this.id,
 						token_id: token.id
 					}])
-					.then(() => token);
+					.then(() => token);  // token with id
+				});
+	}
+
+	insertIssue(issueConfig) {
+		const issue = new Issue(issueConfig); // issue without id
+		return issue.save()
+				.then(issue => {
+					return db.query('insert into ?? set ?', [User.rel.issue, {
+						user_id: this.id,
+						issue_id: issue.id
+					}])
+					.then(() => issue);  // issue with id
 				});
 	}
 
