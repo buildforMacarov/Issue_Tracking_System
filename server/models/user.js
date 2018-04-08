@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const db = require('../db/database');
 const Issue = require('./issue');
+const Token = require('./token');
 
 class User {
 	constructor(config) {
@@ -23,6 +25,30 @@ class User {
 		return db.query(sql, [this.id]);
 	}
 
+	findAllTokens() {
+		const sql = `
+			select ${Token.table}.*
+			from ${User.table} inner join ${User.rel.token} on ${User.table}.id = ${User.rel.token}.user_id
+			inner join ${Token.table} on ${User.rel.token}.token_id = ${Token.table}.id
+			where ${User.table}.id = ?
+		`;
+		return db.query(sql, [this.id]);
+	}
+
+	generateAuthToken() {
+		const tokenVal = jwt.sign({
+			password: this.password
+		}, process.env.JWT_SECRET);
+		return Token.insertOne(tokenVal)
+				.then(token => {
+					return db.query('insert into ?? set ?', [User.rel.token, {
+						user_id: this.id,
+						token_id: token.id
+					}])
+					.then(() => token);
+				});
+	}
+
 
 	/* STATIC FIELDS */
 
@@ -32,7 +58,8 @@ class User {
 
 	static get rel() {
 		return {
-			issue: 'user_issue_open'
+			issue: 'user_issue_open',
+			token: 'user_tokens'
 		};
 	}
 
@@ -76,6 +103,29 @@ class User {
 							return Promise.reject({ message: 'Invalid password' });
 						}
 					});
+			});
+	}
+
+	static findByToken(tokenVal) {
+		let decoded;
+		try {
+			decoded = jwt.verify(tokenVal, process.env.JWT_SECRET);
+		} catch (error) {
+			return Promise.reject();
+		}
+
+		const sql = `
+			select ${User.table}.*
+			from ${User.table} inner join ${User.rel.token} on ${User.table}.id = ${User.rel.token}.user_id
+			inner join ${Token.table} on ${User.rel.token}.token_id = ${Token.table}.id
+			where ${Token.table}.tokenVal = ? and ${User.table}.password = ?
+		`;
+		return db.query(sql, [tokenVal, decoded.password])
+			.then(users => {
+				if (users.length === 0) {
+					return Promise.resolve(null);
+				}
+				return new User(user[0]);
 			});
 	}
 }

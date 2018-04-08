@@ -4,6 +4,8 @@ const expect = require('expect');
 const { app } = require('./../server');
 const db = require('./../db/database');
 
+const User = require('../models/user');
+
 describe('GET /issues', () => {
 	it('should return all 3 issues', (done) => {
 		request(app)
@@ -364,12 +366,12 @@ describe('POST /assignment', () => {
 });
 
 describe('POST /users/login', () => {
-	it('should log in a user', () => {
+	it('should log in a user', (done) => {
 		const user = {
 			id: 1,
 			name: 'Zenkov',
 			email: 'tenkov@gmail.com',
-			password: 'mansnothot1432'),
+			password: 'mansnothot1432!',
 		};
 		request(app)
 			.post('/users/login')
@@ -378,25 +380,73 @@ describe('POST /users/login', () => {
 				password: user.password
 			})
 			.expect(200)
-			.expect(res => expect(res.headers['x-auth']).toExist())
+			.expect(res => {
+				expect(res.headers['x-auth']).toExist();
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+			})
 			.end((err, res) => {
 				if (err) {
 					return done(err);
 				}
 
-				// get list all tokens of a user
-				const sql = `
-					select login_tokens.*
-					from users inner join user_tokens on users.id = user_tokens.user_id
-					inner join login_tokens on user_tokens.token_id = login_tokens.id
-					where users.id = ?
-				`;
-				db.query(sql, [user.id])
-					.then(rows => {
-						console.log(JSON.stringify(rows, null, 4));
+				User.findById(user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject({ message: `No user with id of ${user.id} ?!?!` });
+						}
+						return user.findAllTokens();
+					})
+					.then(tokens => {
+						expect(tokens.length).toBe(1);
+						expect(tokens[0].tokenVal).toBe(res.headers['x-auth']);
 						done();
 					})
 					.catch(done);
 			});
-	})
+	});
+
+	it('should not log in a user if unregistered email', (done) => {
+		const email = 'unregisteredemail@email.co';
+		const password = 'mansnothot1432!';
+
+		request(app)
+			.post('/users/login')
+			.send({ email, password })
+			.expect(404)
+			.end(done);
+	});
+
+	it('should not log in a user if invalid password', (done) => {
+		const user = {
+			id: 3,
+			name: 'Dreskonivich',
+			email: 'dreskonmail@hotmail.com',
+			password: 'ilikespaceM00n-wrongpassword'
+		};
+		request(app)
+			.post('/users/login')
+			.send({
+				email: user.email,
+				password: user.password
+			})
+			.expect(404)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				User.findById(user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject({ message: `No user with id of ${user.id} ?!?!` });
+						}
+						return user.findAllTokens();
+					})
+					.then(tokens => {
+						expect(tokens.length).toBe(0);
+						done();
+					})
+					.catch(done);
+			});
+	});
 });

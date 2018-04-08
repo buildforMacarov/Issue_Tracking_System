@@ -5,10 +5,12 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 
 const db = require('./db/database');
+
 const User = require('./models/user');
 const Developer = require('./models/developer');
 const Admin = require('./models/admin');
 const Issue = require('./models/issue');
+
 const logger = require('./middleware/logger');
 const { authenticateUser } = require('./middleware/authenticate');
 
@@ -218,23 +220,17 @@ app.post('/assignment', (req, res) => {
 app.post('/users/login', (req, res) => {
 	const { email, password } = req.body;
 
-	db.query('select * from users where email = ?', [email])
-		.then(rows => {
-			if (rows.length === 0) {
-				return Promise.reject({ message: 'Email not registered' });
-			}
-			const user = rows[0];
-			bcrypt.compare(password, user.password)
-				.then(compareRes => {
-					if (compareRes) {
-						return user;
-					} else {
-						return Promise.reject({ message: 'Invalid password' });
-					}
-				});
-		})
+	User.findByCredentials(email, password)
 		.then(user => {
-			// generateAuthToken
+			return user.generateAuthToken()
+				.then(token => {
+					user = {
+						id: user.id,
+						name: user.name,
+						email: user.email
+					}
+					res.header('x-auth', token.tokenVal).send({ user });
+				});
 		})
 		.catch(error => res.status(404).send());
 });

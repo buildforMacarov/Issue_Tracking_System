@@ -13,7 +13,7 @@ create table users (
   id int not null auto_increment,
   name varchar(20) not null,
   email varchar(35) not null unique,
-  password varchar(50) not null,
+  password text not null,
   primary key (id)
 );
 
@@ -21,7 +21,7 @@ create table developers (
   id int not null auto_increment,
   name varchar(20) not null,
   email varchar(35) not null unique,
-  password varchar(50) not null,
+  password text not null,
   primary key (id)
 );
 
@@ -29,7 +29,7 @@ create table admins (
   id int not null auto_increment,
   name varchar(20) not null,
   email varchar(35) not null unique,
-  password varchar(50) not null,
+  password text not null,
   primary key (id)
 );
 
@@ -44,7 +44,7 @@ create table issues (
 
 create table login_tokens (
   id int not null auto_increment,
-  token text not null,
+  tokenVal text not null,
   primary key (id)
 );
 
@@ -73,9 +73,9 @@ create table user_tokens (
 );
 
 insert into users values
-(1,'Zenkov','tenkov@gmail.com','#hashisahash'),
-(2,'Markov','tokenmail@yahoo.com','$%%%%R123ijs'),
-(3,'Dreskonivich','dreskonmail@hotmail.com','$%%1515frvf');
+(1,'Zenkov','tenkov@gmail.com','$2a$12$xx2nP6AeXeWQsVYWX61IXu7AV979vJd9Gw81sGG7ifR/59LOU84X2'), -- mansnothot1432!
+(2,'Markov','tokenmail@yahoo.com','$2a$12$kpjqr4v68o2lVnrwGwjVPOS/ApJFMiQxjlna2rRtVSZM9H1N1Bdm.'),  -- cookie1n1he1ar
+(3,'Dreskonivich','dreskonmail@hotmail.com','$2a$12$9bNg0kFSQN8rFcncM0sdqeH2SG5dHzrA9Bi61uFUKYoLOv0shwNo2');  -- ilikespaceM00n
 
 insert into developers values
 (1,'Foo','foofoo@gmail.com','#hashisahash'),
