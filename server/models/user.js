@@ -39,7 +39,9 @@ class User {
 		const tokenVal = jwt.sign({
 			password: this.password
 		}, process.env.JWT_SECRET);
-		return Token.insertOne(tokenVal)
+
+		const token = new Token({ tokenVal });
+		return token.save()
 				.then(token => {
 					return db.query('insert into ?? set ?', [User.rel.token, {
 						user_id: this.id,

@@ -2,8 +2,17 @@ const db = require('../db/database');
 
 class Token {
     constructor(config) {
-        this.id = config.id;
+        this.id = config.id || null;
         this.tokenVal = config.tokenVal;
+    }
+
+    /* INSTANCE METHODS */
+    save() {
+        return db.query('insert into ?? set ?', [Token.table, this])
+            .then(insertRes => {
+                this.id = insertRes.insertId;
+                return this;
+            });
     }
 
     /* STATIC FIELDS */
@@ -14,19 +23,6 @@ class Token {
     
     /* STATIC METHODS */
 
-    static insertOne(tokenVal) {
-        return db.query('insert into ?? set ?', [Token.table, {
-            id: null,
-            tokenVal
-        }])
-        .then(insertRes => {
-            const tokenId = insertRes.insertId;
-            return new Token({
-                id: tokenId,
-                tokenVal
-            });
-        });
-    }
 }
 
 module.exports = Token;
