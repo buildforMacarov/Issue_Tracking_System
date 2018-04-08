@@ -12,6 +12,7 @@ const Admin = require('./models/admin');
 const Issue = require('./models/issue');
 
 const userRouter = require('./routes/user');
+const issueRouter = require('./routes/issue');
 
 const logger = require('./middleware/logger');
 const { authenticateUser } = require('./middleware/authenticate');
@@ -27,28 +28,7 @@ app.use(bodyParser.json());
 app.use(logger);
 app.use(express.static(__dirname + '/../public'));
 
-app.get('/issues', (req, res) => {
-	Issue.findAll()
-		.then(issues => {
-			if (issues.length === 0) {
-				return res.status(404).send();
-			}
-			res.json({ issues });
-		})
-		.catch(error => res.status(400).send());
-});
-
-app.get('/issues/:id', (req, res) => {
-	Issue.findById(req.params.id)
-		.then(issue => {
-			if (!issue) {
-				return res.status(404).send();
-			}
-			res.json({ issue });
-		})
-		.catch(error => res.status(400).send());
-});
-
+app.use('/issues', issueRouter);
 app.use('/users', userRouter);
 
 app.get('/developers', (req, res) => {
