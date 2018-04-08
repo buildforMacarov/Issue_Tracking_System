@@ -225,15 +225,19 @@ describe('GET /admins/:id', () => {
 	});
 });
 
-describe('POST /issues/:userId', () => {
+describe('POST users/issues', () => {
+	const userToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiR4eDJuUDZBZVhlV1FzVllXWDYxSVh1N0FWOTc5dkpkOUd3ODFzR0c3aWZSLzU5TE9VODRYMiIsImlhdCI6MTUyMzIxMjA3MH0.zIDcd1ZlMaa3EVIntRMuWxYQ_8REbrJpEHPMAJWAdEw';
+
 	it('should post an issue and update which user posted it', (done) => {
+		// post issue for user 1 using token of id 1 of user 1.
 		const userId = 1;
 		const heading = 'Testing issue post';
 		const description = 'This is a POST /issues test that is valid';
 
 		request(app)
-			.post(`/issues/${userId}`)
+			.post(`/users/issues`)
 			.send({ heading, description })
+			.set('x-auth', userToken)
 			.expect(200)
 			.expect(res => {
 				// client test
@@ -268,24 +272,38 @@ describe('POST /issues/:userId', () => {
 			});
 	});
 
-	it('should not post an issue if user doesn\'t exist', (done) => {
+	it('should return 400 if issue has no heading', (done) => {
+		// post issue for user 1 using token of id 1 of user 1.
 		request(app)
-			.post('/issues/4')
+			.post('/users/issues')
+			.set('x-auth', userToken)
 			.send({
-				heading: 'Foo',
-				description: 'yay'
+				description: 'This issue doesn\'t have a heading'
 			})
 			.expect(400)
 			.end(done);
 	});
 
-	it('should not post an issue if no heading', (done) => {
+	it('should return 401 if invalid token', (done) => {
 		request(app)
-			.post('/issues/8')
+			.post('/users/issues')
+			.set('x-auth', 'aaabbbccc')
 			.send({
-				description: 'This issue doesn\'t have a heading'
+				heading: 'Foo',
+				description: 'yay'
 			})
-			.expect(400)
+			.expect(401)
+			.end(done);
+	});
+
+	it('should return 401 if no token', (done) => {
+		request(app)
+			.post('/users/issues')
+			.send({
+				heading: 'This is a heading',
+				description: 'This issue is sent without a token'
+			})
+			.expect(401)
 			.end(done);
 	});
 });
