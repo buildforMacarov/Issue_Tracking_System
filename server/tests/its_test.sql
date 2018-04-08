@@ -57,9 +57,11 @@ create table user_issue_open (
 );
 
 create table developer_issue_assignment (
+  admin_id int not null,
   developer_id int not null,
   issue_id int not null,
-  primary key (developer_id, issue_id),
+  primary key (developer_id, issue_id),  -- different admins cannot assign the same dev to the same issue
+  foreign key (admin_id) references admins(id),
   foreign key (developer_id) references developers(id),
   foreign key (issue_id) references issues(id)
 );
@@ -80,7 +82,8 @@ insert into users values
 insert into developers values
 (1,'Foo','foofoo@gmail.com','#hashisahash'),
 (2,'Sam','samuel@yahoo.com','$%%%%R123ijs'),
-(3,'Dave','davedave@hotmail.com','$%%1515frvf');
+(3,'Dave','davedave@hotmail.com','$%%1515frvf'),
+(4,'Fam', 'famfam@fam.com', 'famdoedoefam');
 
 insert into admins values
 (1,'Josh','peoplepeepes@gmail.com','#4th4hthtdfgdfg'),
@@ -97,6 +100,8 @@ insert into user_issue_open values
 (2, 3);
 
 insert into developer_issue_assignment values
-(3, 1),
-(1, 1),
-(3, 2);
+(1, 3, 1),
+(1, 1, 1),
+(2, 3, 2),
+(2, 2, 1),
+(2, 2, 2);

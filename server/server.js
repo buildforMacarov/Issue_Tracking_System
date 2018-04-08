@@ -168,15 +168,16 @@ app.post('/issues/:userId', (req, res) => {
 });
 
 app.post('/assignment', (req, res) => {
-	const { developerId, issueId } = req.body;
-	db.query('insert into developer_issue_assignment set ?', {
-		developer_id: developerId,
-		issue_id: issueId
-	})
-	.then(result => {
-		res.status(200).send();
-	})
-	.catch(error => res.status(400).send());
+	const { adminId, developerId, issueId } = req.body;
+	Admin.findById(adminId)
+		.then(admin => {
+			if (!admin) {
+				return Promist.reject();
+			}
+			return admin.insertAssignment(developerId, issueId);
+		})
+		.then(() => res.status(200).send())
+		.catch(error => res.status(400).send());
 });
 
 app.post('/users/login', (req, res) => {

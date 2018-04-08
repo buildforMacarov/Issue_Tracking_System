@@ -115,12 +115,12 @@ describe('GET /users/:userId/issues', () => {
 });
 
 describe('GET /developers', () => {
-	it('should return all 3 developers', (done) => {
+	it('should return all 4 developers', (done) => {
 		request(app)
 			.get('/developers')
 			.expect(200)
 			.expect(res => {
-				expect(res.body.developers.length).toBe(3);
+				expect(res.body.developers.length).toBe(4);
 				expect(res.body.developers[0]).toIncludeKeys(['id', 'name', 'email']);
 			})
 			.end(done);
@@ -289,11 +289,12 @@ describe('POST /issues/:userId', () => {
 
 describe('POST /assignment', () => {
 	it('should assign an issue to a developer', (done) => {
+		const adminId = 2;
 		const developerId = 1;
 		const issueId = 3;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(200)
 			.end((err, res) => {
 				if (err) {
@@ -304,6 +305,7 @@ describe('POST /assignment', () => {
 					.expect(200)
 					.expect(res => {
 						const issueIds = res.body.issues.map(issue => issue.id);
+						expect(res.body.issues.length).toBe(2);
 						expect(issueIds).toEqual([1, issueId]);
 					})
 					.end(done);
@@ -311,21 +313,23 @@ describe('POST /assignment', () => {
 	});
 
 	it('should not assign an issue to a developer if already assigned to him', (done) => {
+		const adminId = 2;
 		const developerId = 1;
 		const issueId = 1;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(400)
 			.end(done)
 	});
 
 	it('should not assign a non-existent issue to a developer', (done) => {
+		const adminId = 2;
 		const developerId = 1;
 		const issueId = 999;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(400)
 			.end((err, res) => {
 				if (err) {
@@ -343,11 +347,12 @@ describe('POST /assignment', () => {
 	});
 
 	it('should not assign an issue to a non-existent developer', (done) => {
+		const adminId = 2;
 		const developerId = 999;
 		const issueId = 1;
 		request(app)
 			.post('/assignment')
-			.send({ developerId, issueId })
+			.send({ adminId, developerId, issueId })
 			.expect(400)
 			.end((err, res) => {
 				if (err) {

@@ -20,6 +20,14 @@ class Admin {
 		};
 	}
 
+	insertAssignment(devId, issueId) {
+		return db.query('insert into ?? set ?', [Admin.rel.issue, {
+			admin_id: this.id,
+			developer_id: devId,
+			issue_id: issueId
+		}]);
+	}
+
 
 	/* STATIC FIELDS */
 
@@ -28,7 +36,9 @@ class Admin {
 	}
 
 	static get rel() {
-		return {};
+		return {
+			issue: 'developer_issue_assignment'
+		};
 	}
 
 	/* STATIC METHODS */
