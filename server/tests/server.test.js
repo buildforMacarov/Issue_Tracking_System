@@ -1,7 +1,10 @@
 const request = require('supertest');
 const expect = require('expect');
 
-const { app, db } = require('./../server');
+const { app } = require('./../server');
+const db = require('./../db/database');
+
+const User = require('../models/user');
 
 describe('GET /issues', () => {
 	it('should return all 3 issues', (done) => {
@@ -359,5 +362,135 @@ describe('POST /assignment', () => {
 					})
 					.catch(done);
 			});
+	});
+});
+
+describe('POST /users/login', () => {
+	it('should log in a user', (done) => {
+		const user = {
+			id: 1,
+			name: 'Zenkov',
+			email: 'tenkov@gmail.com',
+			password: 'mansnothot1432!',
+		};
+		request(app)
+			.post('/users/login')
+			.send({
+				email: user.email,
+				password: user.password
+			})
+			.expect(200)
+			.expect(res => {
+				expect(res.headers['x-auth']).toExist();
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				User.findById(user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject({ message: `No user with id of ${user.id} ?!?!` });
+						}
+						return user.findAllTokens();
+					})
+					.then(tokens => {
+						expect(tokens.length).toBe(1);
+						expect(tokens[0].tokenVal).toBe(res.headers['x-auth']);
+						done();
+					})
+					.catch(done);
+			});
+	});
+
+	it('should not log in a user if unregistered email', (done) => {
+		const email = 'unregisteredemail@email.co';
+		const password = 'mansnothot1432!';
+
+		request(app)
+			.post('/users/login')
+			.send({ email, password })
+			.expect(404)
+			.end(done);
+	});
+
+	it('should not log in a user if invalid password', (done) => {
+		const user = {
+			id: 3,
+			name: 'Dreskonivich',
+			email: 'dreskonmail@hotmail.com',
+			password: 'ilikespaceM00n-wrongpassword'
+		};
+		request(app)
+			.post('/users/login')
+			.send({
+				email: user.email,
+				password: user.password
+			})
+			.expect(404)
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+
+				User.findById(user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject({ message: `No user with id of ${user.id} ?!?!` });
+						}
+						return user.findAllTokens();
+					})
+					.then(tokens => {
+						expect(tokens.length).toBe(0);
+						done();
+					})
+					.catch(done);
+			});
+	});
+});
+
+describe('POST /users/signup', () => {
+	it('should sign up (insert) a user', (done) => {
+		const name = 'NewUser123';
+		const email = 'newuseremail@email.com';
+		const password = 'newUserPassw0rd';
+
+		request(app)
+			.post('/users/signup')
+			.send({ name, email, password })
+			.expect(200)
+			.expect(res => {
+				expect(res.headers['x-auth']).toExist();
+				expect(res.body.user).toIncludeKeys(['id', 'name', 'email']);
+				expect(res.body.user).toInclude({ name, email });
+			})
+			.end((err, res) => {
+				if (err) {
+					return done(err);
+				}
+				User.findById(res.body.user.id)
+					.then(user => {
+						if (!user) {
+							return Promise.reject();
+						}
+						expect(user).toInclude(res.body.user);
+						done();
+					})
+					.catch(done);
+			});
+	});
+
+	it('should not sign up a user if email is taken', (done) => {
+		const name = 'NewUser123';
+		const email = 'tenkov@gmail.com';  // user id = 1's email
+		const password = 'newUserPassw0rd';
+
+		request(app)
+			.post('/users/signup')
+			.send({ name, email, password })
+			.expect(400)
+			.end(done);
 	});
 });
