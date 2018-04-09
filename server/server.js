@@ -35,20 +35,6 @@ app.use('/users', userRouter);
 app.use('/developers', developerRouter);
 app.use('/admins', adminRouter);
 
-app.post('/issues/:userId', (req, res) => {
-	const { heading, description } = req.body;
-
-	User.findById(req.params.userId)
-		.then(user => {
-			if (!user) {
-				return Promise.reject();
-			}
-			return user.insertIssue({ heading, description });
-		})
-		.then(issue => res.json({ issue }))
-		.catch(error => res.status(400).send());
-});
-
 app.post('/assignment', (req, res) => {
 	const { adminId, developerId, issueId } = req.body;
 	Admin.findById(adminId)

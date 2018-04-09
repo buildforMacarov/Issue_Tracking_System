@@ -88,4 +88,12 @@ router.post('/signup', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.post('/issues', authenticateUser, (req, res) => {
+	const { heading, description } = req.body;
+
+	req.user.insertIssue({ heading, description })
+		.then(issue => res.json({ issue }))
+		.catch(error => res.status(400).send());
+});
+
 module.exports = router;
