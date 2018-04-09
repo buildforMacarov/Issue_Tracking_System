@@ -38,7 +38,7 @@ create table issues (
   heading tinytext not null,
   description text default null,
   time timestamp not null default now(),
-  status enum('open', 'close') not null,
+  status enum('open', 'closed') not null,
   primary key (id)
 );
 

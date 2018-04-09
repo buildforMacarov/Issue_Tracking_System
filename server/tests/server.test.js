@@ -5,6 +5,7 @@ const { app } = require('./../server');
 const db = require('./../db/database');
 
 const User = require('../models/user');
+const Issue = require('../models/issue');
 
 describe('GET /issues', () => {
 	it('should return all 3 issues', (done) => {
@@ -501,5 +502,50 @@ describe('POST /users/signup', () => {
 			.send({ name, email, password })
 			.expect(400)
 			.end(done);
+	});
+});
+
+describe('PATCH /users/issues/:id', () => {
+	// token of id = 2, of user id = 2
+	const userTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjEzNn0.-OfyeL1y8ONTKiVpLFybxNnPVPGmWV4Xx1X7s75yflM';
+	it('should close a user\'s issue', (done) => {
+		const issueId = 3;
+		request(app)
+			.patch(`/users/issues/${issueId}`)
+			.set('x-auth', userTwoToken)
+			.send({ status: 'closed '})
+			.expect(200)
+			.expect(res => {
+				expect(res.body.issue.status).toBe('closed');
+			})
+			.end((err, res) => {
+				if (err) return done(err);
+
+				Issue.findById(issueId)
+					.then(issue => {
+						expect(issue.status).toBe('closed');
+						done();
+					})
+					.catch(done);
+			});
+	});
+
+	it('should not close an issue created by other users', (done) => {
+		const issueId = 2;
+		request(app)
+			.patch(`/users/issues/${issueId}`)
+			.set('x-auth', userTwoToken)
+			.send({ status: 'closed' })
+			.expect(404)
+			.end(err => {
+				if (err) return done(err);
+
+				Issue.findById(issueId)
+					.then(issue => {
+						expect(issue.status).toBe('open');
+						done();
+					})
+					.catch(done);
+			});
 	});
 });

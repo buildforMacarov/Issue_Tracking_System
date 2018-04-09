@@ -16,6 +16,11 @@ class Issue {
 				.then(insertRes => Issue.findById(insertRes.insertId));
 	}
 
+	updateStatus(status) {
+		return db.query('UPDATE ?? SET status = ? WHERE id = ?', [Issue.table, status, this.id])
+			.then(updateRes => Issue.findById(this.id));
+	}
+
 	/* STATIC FIELDS */
 
 	static get table() {

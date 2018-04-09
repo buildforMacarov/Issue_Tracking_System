@@ -82,7 +82,6 @@ class User {
 				});
 	}
 
-
 	/* STATIC FIELDS */
 
 	static get table() {
