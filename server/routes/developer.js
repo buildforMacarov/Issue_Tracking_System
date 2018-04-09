@@ -2,6 +2,8 @@ const express = require('express');
 
 const Developer = require('../models/developer');
 
+const { authenticateDev } = require('../middleware/authenticate');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -16,6 +18,17 @@ router.get('/', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.get('/issues', authenticateDev, (req, res) => {
+	req.developer.findAllIssues()
+		.then(issues => {
+			if (issues.length === 0) {
+				return res.status(404).send();
+			}
+			res.json({ issues });
+		})
+		.catch(error => res.status(400).send());
+});
+
 router.get('/:id', (req, res) => {
 	Developer.findById(req.params.id)
 		.then(dev => {
@@ -24,23 +37,6 @@ router.get('/:id', (req, res) => {
 			}
 			dev = dev.toPublic();
 			res.json({ developer: dev });
-		})
-		.catch(error => res.status(400).send());
-});
-
-router.get('/:developerId/issues', (req, res) => {
-	Developer.findById(req.params.developerId)
-		.then(dev => {
-			if (!dev) {
-				return res.status(404).send();
-			}
-			return dev.findAllIssues();
-		})
-		.then(issues => {
-			if (issues.length === 0) {
-				return res.status(404).send();
-			}
-			res.json({ issues });
 		})
 		.catch(error => res.status(400).send());
 });

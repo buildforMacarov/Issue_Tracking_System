@@ -168,11 +168,14 @@ describe('GET', () => {
 		});
 	});
 	
-	describe('GET /developers/:developerId/issues', () => {
+	describe('GET /developers/issues', () => {
 		/* private to developer */
+		// dev of id = 3, using token of id = 4
+		const devThreeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRIWFpQU3c0Q29oUVNKUDlLdnMzYThlNkRCbkowQkF1LnlrMS5JbjlJTy9vUjAva3Noc1RQSyIsImlhdCI6MTUyMzI2MzI4MX0.p-jmoRcn8DlQxs3ERFNXHdKE_g_cMOuQg0LcOKptmvA';
 		it('should return all of a developer\'s assigned issues', (done) => {
 			request(app)
-				.get('/developers/3/issues')
+				.get('/developers/issues')
+				.set('x-auth', devThreeToken)
 				.expect(200)
 				.expect(res => {
 					const issueIds = res.body.issues.map(issue => issue.id);
@@ -181,18 +184,19 @@ describe('GET', () => {
 				})
 				.end(done);
 		});
-	
-		it('should return 404 if developerId invalid', (done) => {
+
+		it('should return 401 if no token in header', (done) => {
 			request(app)
-				.get('/developers/abc/issues')
-				.expect(404)
+				.get('/developers/issues')
+				.expect(401)
 				.end(done);
 		});
-	
-		it('should return 404 if developerId not found', (done) => {
+
+		it('should return 401 if invalid token', (done) => {
 			request(app)
-				.get('/developers/9999/issues')
-				.expect(404)
+				.get('/developers/issues')
+				.set('x-auth', 'aaabbbccc')
+				.expect(401)
 				.end(done);
 		});
 	});

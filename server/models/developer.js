@@ -1,7 +1,9 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const db = require('../db/database');
 const Issue = require('./issue');
+const Token = require('./token');
 
 class Developer {
 	constructor(config) {
@@ -41,7 +43,8 @@ class Developer {
 
 	static get rel() {
 		return {
-			issue: 'developer_issue_assignment'
+			issue: 'developer_issue_assignment',
+			token: 'developer_tokens'
 		};
 	}
 
@@ -86,6 +89,29 @@ class Developer {
 							return Promise.reject({ message: 'Invalid password' });
 						}
 					});
+			});
+	}
+
+	static findByToken(tokenVal) {
+		let decoded;
+		try {
+			decoded = jwt.verify(tokenVal, process.env.JWT_SECRET);
+		} catch (error) {
+			return Promise.reject();
+		}
+
+		const sql = `
+			select ${Developer.table}.*
+			from ${Developer.table} inner join ${Developer.rel.token} on ${Developer.table}.id = ${Developer.rel.token}.developer_id
+			inner join ${Token.table} on ${Developer.rel.token}.token_id = ${Token.table}.id
+			where ${Token.table}.tokenVal = ? and ${Developer.table}.password = ?
+		`;
+		return db.query(sql, [tokenVal, decoded.password])
+			.then(rows => {
+				if (rows.length === 0) {
+					return Promise.resolve(null);
+				}
+				return new Developer(rows[0]);
 			});
 	}
 }
