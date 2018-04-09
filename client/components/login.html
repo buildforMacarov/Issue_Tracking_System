@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Log In</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    </head>
-    <body>
-        <div class="container">
+import React from 'react';
+import axios from 'axios';
+
+export class login extends React.Component {
+    constructor(props) {
+		super(props);
+
+    }
+    render() {
+        return(
+            <div class="container">
             <div class="card card-container">
                 <img class="profile-img-card" src="images.jpeg" />
                 <i class="glyphicon glyphicon-user"></i>
@@ -16,26 +17,26 @@
                 <form class="form-signin">
 
                         <span id="reauth-email" class="reauth-email"></span>
-                        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-                        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus />
+                        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required />
 
                         <div id="remember" class="checkbox">
                             <label>
-                                <input type="checkbox" value="remember-me"> Remember me
+                                <input type="checkbox" value="remember-me" /> Remember me
                             </label>
                         </div>
 
                         <div>
                            <input type="radio" id="acount-type1"
-                            name="acount-type" value="user">
+                            name="acount-type" value="user" />
                            <label for="account-type1">User</label>
 
                            <input type="radio" id="account-type2"
-                            name="acount-type" value="developer">
+                            name="acount-type" value="developer" />
                            <label for="account-type2">Developer</label>
 
                            <input type="radio" id="account-type3"
-                            name="acount-type" value="admin">
+                            name="acount-type" value="admin" />
                            <label for="account-type3">Admin</label>
                          </div>
 
@@ -43,16 +44,33 @@
                             Sign in
                         </button>
 
-                </form><!-- /form -->
+                </form>
 
                 <a href="#" class="forgot-password">
                     Forgot the password?
                 </a>
                 
-            </div><!-- /card-container -->
-        </div><!-- /container -->
-        <script type="text/javascript">
+            </div>
+        </div>
+        );
+    }
+}
 
+
+
+/*
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Log In</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    </head>
+    <body>
+        
+        <script src="./jquery-3.3.1.min.js"></script>
+        <script type="text/javascript">
             $('form').submit(function() {
                 if($('#account-type1')) {
                     $.ajax({
@@ -60,8 +78,8 @@
                         method: 'POST',
                         url: '/users/login',
                         data: $( this ).serialize(),
-                        success: function() {
-                            //window.location.href = "http://stackoverflow.com"; //redirect to this page
+                        success: function(res) {
+                            console.log(res);
                         }
                     });
                 }
@@ -71,8 +89,8 @@
                         method: 'POST',
                         url: '/developers/login',
                         data: $( this ).serialize(),
-                        success: function() {
-                            //window.location.href = "http://stackoverflow.com"; //redirect to this page
+                        success: function(res) {
+                            console.log(res);
                         }
                     });
                 }
@@ -82,8 +100,8 @@
                         method: 'POST',
                         url: '/admins/login',
                         data: $( this ).serialize(),
-                        success: function() {
-                            //window.open("http://www.stackoverflow.com"); //this page will be open in new tab
+                        success: function(res) {
+                            console.log(res);
                         }
                     });
                 }
@@ -94,3 +112,4 @@
 
     </body>
 </html>
+*/
