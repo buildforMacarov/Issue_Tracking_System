@@ -2,14 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const bcrypt = require('bcrypt');
 
 const db = require('./db/database');
-
-const User = require('./models/user');
-const Developer = require('./models/developer');
-const Admin = require('./models/admin');
-const Issue = require('./models/issue');
 
 const userRouter = require('./routes/user');
 const issueRouter = require('./routes/issue');
@@ -17,7 +11,6 @@ const developerRouter = require('./routes/developer');
 const adminRouter = require('./routes/admin');
 
 const logger = require('./middleware/logger');
-const { authenticateUser } = require('./middleware/authenticate');
 
 const app = express();
 

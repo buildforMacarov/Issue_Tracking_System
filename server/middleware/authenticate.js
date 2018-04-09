@@ -1,6 +1,3 @@
-const jwt = require('jsonwebtoken');
-
-const { db } = require('./../server');
 const User = require('../models/user');
 const Developer = require('../models/developer');
 const Admin = require('../models/admin');

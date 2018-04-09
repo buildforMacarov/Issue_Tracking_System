@@ -2,7 +2,6 @@ const request = require('supertest');
 const expect = require('expect');
 
 const { app } = require('./../server');
-const db = require('./../db/database');
 
 const User = require('../models/user');
 const Issue = require('../models/issue');
@@ -271,23 +270,15 @@ describe('POST', () => {
 					if (err) return done(err);
 	
 					const issueRes = res.body.issue;
-	
-					db.query('SELECT * FROM issues')
-						.then(rows => {
-							expect(rows.length).toBe(4);
-							return db.query('SELECT * FROM issues WHERE id = ?', [issueRes.id]);
+					Issue.findById(issueRes.id)
+						.then(issue => {
+							expect(issue).toInclude({ heading, description, status: 'open' });
+							return User.findById(userId);
 						})
-						.then(rows => {
-							const postedIssue = rows[0];
-							expect(postedIssue).toInclude({ heading, description, status: 'open' });
-							return db.query('select * from user_issue_open where user_id = ? and issue_id = ?', [userId, issueRes.id]);
-						})
-						.then(rows => {
-							const postedRel = rows[0];
-							expect(postedRel).toInclude({
-								user_id: userId,
-								issue_id: issueRes.id
-							});
+						.then(user => user.findAllIssues())
+						.then(issues => issues.find(issue => issue.id === issueRes.id))
+						.then(issue => {
+							expect(issue).toExist();
 							done();
 						})
 						.catch(done);
