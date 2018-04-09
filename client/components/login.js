@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-
+import $ from 'jquery';
 export class login extends React.Component {
     constructor(props) {
 		super(props);
@@ -9,87 +9,88 @@ export class login extends React.Component {
     render() {
         return(
             <div class="container">
-            <div class="card card-container">
-                <img class="profile-img-card" src="images.jpeg" />
-                <i class="glyphicon glyphicon-user"></i>
-                <p id="profile-name" class="profile-name-card"></p>
+                <div class="card card-container">
+                    <img class="profile-img-card" src="images.jpeg" />
+                    <i class="glyphicon glyphicon-user"></i>
+                    <p id="profile-name" class="profile-name-card"></p>
 
-                <form class="form-signin">
+                    <form class="form-signin">
 
-                        <span id="reauth-email" class="reauth-email"></span>
-                        <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus />
-                        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required />
+                            <span id="reauth-email" class="reauth-email"></span>
+                            <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus />
+                            <input type="password" id="inputPassword" class="form-control" placeholder="Password" required />
 
-                        <div id="remember" class="checkbox">
-                            <label>
-                                <input type="checkbox" value="remember-me" /> Remember me
-                            </label>
-                        </div>
+                            <div id="remember" class="checkbox">
+                                <label>
+                                    <input type="checkbox" value="remember-me" /> Remember me
+                                </label>
+                            </div>
 
-                        <div>
-                           <input type="radio" id="acount-type1"
-                            name="acount-type" value="user" />
-                           <label for="account-type1">User</label>
+                            <div>
+                            <input type="radio" id="acount-type1"
+                                name="acount-type" value="user" />
+                            <label for="account-type1">User</label>
 
-                           <input type="radio" id="account-type2"
-                            name="acount-type" value="developer" />
-                           <label for="account-type2">Developer</label>
+                            <input type="radio" id="account-type2"
+                                name="acount-type" value="developer" />
+                            <label for="account-type2">Developer</label>
 
-                           <input type="radio" id="account-type3"
-                            name="acount-type" value="admin" />
-                           <label for="account-type3">Admin</label>
-                         </div>
+                            <input type="radio" id="account-type3"
+                                name="acount-type" value="admin" />
+                            <label for="account-type3">Admin</label>
+                            </div>
 
-                        <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">
-                            Sign in
-                        </button>
+                            <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">
+                                Sign in
+                            </button>
 
-                </form>
+                    </form>
 
-                <a href="#" class="forgot-password">
-                    Forgot the password?
-                </a>
-                {
-                    $('form').submit(function() {
-                        if($('#account-type1')) {
-                            $.ajax({
-                                async: true,
-                                method: 'POST',
-                                url: '/users/login',
-                                data: $( this ).serialize(),
-                                success: function(res) {
-                                    console.log(res);
-                                }
-                            });
-                        }
-                        else if($('#account-type2')) {
-                            $.ajax({
-                                async: true,
-                                method: 'POST',
-                                url: '/developers/login',
-                                data: $( this ).serialize(),
-                                success: function(res) {
-                                    console.log(res);
-                                }
-                            });
-                        }
-                        else if($('#account-tpe3')) {
-                            $.ajax({
-                                async: true,
-                                method: 'POST',
-                                url: '/admins/login',
-                                data: $( this ).serialize(),
-                                success: function(res) {
-                                    console.log(res);
-                                }
-                            });
-                        }
-                        
-                    })
-                }
-            </div>
+                    <a href="#" class="forgot-password">
+                        Forgot the password?
+                    </a>
+                    {
+                        $('form').submit(function() {
+                            if($('#account-type1')) {
+                                $.ajax({
+                                    async: true,
+                                    method: 'POST',
+                                    url: '/users/login',
+                                    data: $( this ).serialize(),
+                                    success: function(res) {
+                                        console.log(res);
+                                    }
+                                });
+                            }
+                            else if($('#account-type2')) {
+                                $.ajax({
+                                    async: true,
+                                    method: 'POST',
+                                    url: '/developers/login',
+                                    data: $( this ).serialize(),
+                                    success: function(res) {
+                                        console.log(res);
+                                    }
+                                });
+                            }
+                            else if($('#account-tpe3')) {
+                                $.ajax({
+                                    async: true,
+                                    method: 'POST',
+                                    url: '/admins/login',
+                                    data: $( this ).serialize(),
+                                    success: function(res) {
+                                        console.log(res);
+                                    }
+                                });
+                            }
+                            
+                        })
+                    }
+                </div>
         </div>
         );
+        {console.log("done !!!")}
     }
 }
 
