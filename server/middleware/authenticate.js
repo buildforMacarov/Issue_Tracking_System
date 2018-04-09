@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const { db } = require('./../server');
 const User = require('../models/user');
 const Developer = require('../models/developer');
+const Admin = require('../models/admin');
 
 const authenticateUser = (req, res, next) => {
 	const tokenVal = req.header('x-auth');
@@ -20,7 +21,6 @@ const authenticateUser = (req, res, next) => {
 
 const authenticateDev = (req, res, next) => {
 	const tokenVal = req.header('x-auth');
-	debugger;
 	Developer.findByToken(tokenVal)
 		.then(dev => {
 			if (!dev) {
@@ -33,7 +33,22 @@ const authenticateDev = (req, res, next) => {
 		.catch(() => res.status(401).send());
 };
 
+const authenticateAdmin = (req, res, next) => {
+	const tokenVal = req.header('x-auth');
+	Admin.findByToken(tokenVal)
+		.then(admin => {
+			if (!admin) {
+				return Promise.reject();
+			}
+			req.admin = admin;
+			req.tokenVal = tokenVal;
+			next();
+		})
+		.catch(() => res.status(401).send());
+};
+
 module.exports = {
 	authenticateUser,
-	authenticateDev
+	authenticateDev,
+	authenticateAdmin
 };

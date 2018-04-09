@@ -35,19 +35,6 @@ app.use('/users', userRouter);
 app.use('/developers', developerRouter);
 app.use('/admins', adminRouter);
 
-app.post('/assignment', (req, res) => {
-	const { adminId, developerId, issueId } = req.body;
-	Admin.findById(adminId)
-		.then(admin => {
-			if (!admin) {
-				return Promist.reject();
-			}
-			return admin.insertAssignment(developerId, issueId);
-		})
-		.then(() => res.status(200).send())
-		.catch(error => res.status(400).send());
-});
-
 const server = app.listen(3000, () => {
 	console.log('Listening at port 3000...');
 });

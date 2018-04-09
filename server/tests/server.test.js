@@ -6,6 +6,7 @@ const db = require('./../db/database');
 
 const User = require('../models/user');
 const Issue = require('../models/issue');
+const Developer = require('../models/developer');
 
 /* Place all GET tests BEFORE POSTS/PATCH/DELETE because of NO beforeEach hook */
 
@@ -329,60 +330,70 @@ describe('POST', () => {
 		});
 	});
 	
-	describe('POST /assignment', () => {
+	describe('POST admins/assignment', () => {
 		/* private to admin */
+		// admin of id 2, using token of id 5
+		const adminTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiQyc2dPTVhXTmU4Mjd1QUxZMHdHMlh1Y3BEODk4L3FHWUhjNWxIZ0tldUx0L0FlN2diRndhYSIsImlhdCI6MTUyMzI2NDIxN30.kn34Zc76XRrBH8JxGIYONljP8-YMaaCyF9RU00-1EDE';
 		it('should assign an issue to a developer', (done) => {
-			const adminId = 2;
 			const developerId = 1;
 			const issueId = 3;
 			request(app)
-				.post('/assignment')
-				.send({ adminId, developerId, issueId })
+				.post('/admins/assignment')
+				.set('x-auth', adminTwoToken)
+				.send({ developerId, issueId })
 				.expect(200)
 				.end((err, res) => {
-					if (err) {
-						return done(err);
-					}
-					request(app)
-						.get(`/developers/${developerId}/issues`)
-						.expect(200)
-						.expect(res => {
-							const issueIds = res.body.issues.map(issue => issue.id);
-							expect(res.body.issues.length).toBe(2);
+					if (err) return done(err);
+					Developer.findById(developerId)
+						.then(dev => dev.findAllIssues())
+						.then(issues => {
+							expect(issues.length).toBe(2);
+							const issueIds = issues.map(is => is.id);
 							expect(issueIds).toEqual([1, issueId]);
+							done();
 						})
-						.end(done);
+						.catch(done);
 				});
 		});
+
+		it('should return 401 if token invalid', (done) => {
+			const developerId = 1;
+			const issueId = 2;
+			request(app)
+				.post('/admins/assignment')
+				.set('x-auth', 'aaabbbccc')
+				.send({ developerId, issueId })
+				.expect(401)
+				.end(done);
+		});
 	
-		it('should not assign an issue to a developer if already assigned to him', (done) => {
-			const adminId = 2;
+		it('should return 400 when trying to assign an already assigned issue to a dev', (done) => {
 			const developerId = 1;
 			const issueId = 1;
 			request(app)
-				.post('/assignment')
-				.send({ adminId, developerId, issueId })
+				.post('/admins/assignment')
+				.set('x-auth', adminTwoToken)
+				.send({ developerId, issueId })
 				.expect(400)
 				.end(done)
 		});
 	
 		it('should not assign a non-existent issue to a developer', (done) => {
-			const adminId = 2;
 			const developerId = 1;
 			const issueId = 999;
 			request(app)
-				.post('/assignment')
-				.send({ adminId, developerId, issueId })
+				.post('/admins/assignment')
+				.set('x-auth', adminTwoToken)
+				.send({ developerId, issueId })
 				.expect(400)
 				.end((err, res) => {
-					if (err) {
-						return done(err);
-					}
-	
-					const sql = 'select * from developer_issue_assignment where developer_id = ? and issue_id = ?';
-					db.query(sql, [developerId, issueId])
-						.then(rows => {
-							expect(rows.length).toBe(0);
+					if (err) return done(err);
+					
+					Developer.findById(developerId)
+						.then(dev => dev.findAllIssues())
+						.then(issues => {
+							const issueIds = issues.map(is => is.id);
+							expect(issueIds).toNotInclude(issueId);
 							done();
 						})
 						.catch(done);
@@ -390,26 +401,14 @@ describe('POST', () => {
 		});
 	
 		it('should not assign an issue to a non-existent developer', (done) => {
-			const adminId = 2;
 			const developerId = 999;
 			const issueId = 1;
 			request(app)
-				.post('/assignment')
-				.send({ adminId, developerId, issueId })
+				.post('/admins/assignment')
+				.set('x-auth', adminTwoToken)
+				.send({ developerId, issueId })
 				.expect(400)
-				.end((err, res) => {
-					if (err) {
-						return done(err);
-					}
-	
-					const sql = 'select * from developer_issue_assignment where developer_id = ? and issue_id = ?';
-					db.query(sql, [developerId, issueId])
-						.then(rows => {
-							expect(rows.length).toBe(0);
-							done();
-						})
-						.catch(done);
-				});
+				.end(done);
 		});
 	});
 	

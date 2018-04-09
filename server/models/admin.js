@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const db = require('../db/database');
+const Token = require('./token');
 
 class Admin {
 	constructor(config) {
@@ -37,7 +39,8 @@ class Admin {
 
 	static get rel() {
 		return {
-			issue: 'developer_issue_assignment'
+			issue: 'developer_issue_assignment',
+			token: 'admin_tokens'
 		};
 	}
 
@@ -82,6 +85,29 @@ class Admin {
 							return Promise.reject({ message: 'Invalid password' });
 						}
 					});
+			});
+	}
+
+	static findByToken(tokenVal) {
+		let decoded;
+		try {
+			decoded = jwt.verify(tokenVal, process.env.JWT_SECRET);
+		} catch (error) {
+			return Promise.reject();
+		}
+
+		const sql = `
+			select ${Admin.table}.*
+			from ${Admin.table} inner join ${Admin.rel.token} on ${Admin.table}.id = ${Admin.rel.token}.admin_id
+			inner join ${Token.table} on ${Admin.rel.token}.token_id = ${Token.table}.id
+			where ${Token.table}.tokenVal = ? and ${Admin.table}.password = ?
+		`;
+		return db.query(sql, [tokenVal, decoded.password])
+			.then(rows => {
+				if (rows.length === 0) {
+					return Promise.resolve(null);
+				}
+				return new Admin(rows[0]);
 			});
 	}
 }
