@@ -7,8 +7,11 @@ const db = require('./../db/database');
 const User = require('../models/user');
 const Issue = require('../models/issue');
 
+/* Place all GET tests BEFORE POSTS/PATCH/DELETE because of NO beforeEach hook */
+
 describe('GET', () => {
 	describe('GET /issues', () => {
+		/* private to admin */
 		it('should return all 3 issues', (done) => {
 			request(app)
 				.get('/issues')
@@ -22,6 +25,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /issues/:id', () => {
+		/* private to admin */
 		it('should return an issue', (done) => {
 			request(app)
 				.get('/issues/3')
@@ -49,6 +53,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /users', () => {
+		/* private to admin */
 		it('should return all 3 users', (done) => {
 			request(app)
 				.get('/users')
@@ -62,6 +67,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /users/:id', () => {
+		/* private to admin */
 		it('should return a user', (done) => {
 			request(app)
 				.get('/users/2')
@@ -89,6 +95,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /users/issues', () => {
+		/* private to user */
 		it('should return all of a user\'s issues', (done) => {
 			// get issues of user 2 using token of id 3 of user 2.
 			request(app)
@@ -120,6 +127,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /developers', () => {
+		/* private to admin */
 		it('should return all 4 developers', (done) => {
 			request(app)
 				.get('/developers')
@@ -133,6 +141,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /developers/:id', () => {
+		/* private to admin */
 		it('should return a developer', (done) => {
 			request(app)
 				.get('/developers/1')
@@ -160,6 +169,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /developers/:developerId/issues', () => {
+		/* private to developer */
 		it('should return all of a developer\'s assigned issues', (done) => {
 			request(app)
 				.get('/developers/3/issues')
@@ -188,6 +198,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /admins', () => {
+		/* private to admin */
 		it('should return all 2 admins', (done) => {
 			request(app)
 				.get('/admins')
@@ -201,6 +212,7 @@ describe('GET', () => {
 	});
 	
 	describe('GET /admins/:id', () => {
+		/* private to admin */
 		it('should return an admin', (done) => {
 			request(app)
 				.get('/admins/1')
@@ -230,6 +242,7 @@ describe('GET', () => {
 
 describe('POST', () => {
 	describe('POST users/issues', () => {
+		/* private to user */
 		const userToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiR4eDJuUDZBZVhlV1FzVllXWDYxSVh1N0FWOTc5dkpkOUd3ODFzR0c3aWZSLzU5TE9VODRYMiIsImlhdCI6MTUyMzIxMjA3MH0.zIDcd1ZlMaa3EVIntRMuWxYQ_8REbrJpEHPMAJWAdEw';
 	
 		it('should post an issue and update which user posted it', (done) => {
@@ -313,6 +326,7 @@ describe('POST', () => {
 	});
 	
 	describe('POST /assignment', () => {
+		/* private to admin */
 		it('should assign an issue to a developer', (done) => {
 			const adminId = 2;
 			const developerId = 1;
@@ -529,6 +543,7 @@ describe('POST', () => {
 
 describe('PATCH', () => {
 	describe('PATCH /users/issues/:id', () => {
+		/* private to user */
 		// token of id = 2, of user id = 2
 		const userTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjEzNn0.-OfyeL1y8ONTKiVpLFybxNnPVPGmWV4Xx1X7s75yflM';
 		it('should close a user\'s issue', (done) => {
