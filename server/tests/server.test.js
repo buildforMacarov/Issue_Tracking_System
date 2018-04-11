@@ -648,7 +648,122 @@ describe('POST', () => {
 				.expect(400)
 				.end(done);
 		});
-	})
+	});
+
+	describe('POST /developers/login', () => {
+		it('should log in a developer', (done) => {
+			// dev 3 already has one token
+			const developer = {
+				id: 3,
+				name: 'Dave',
+				email: 'davedave@hotmail.com',
+				password: 'ilikespaceM00n',
+			};
+			request(app)
+				.post('/developers/login')
+				.send({
+					email: developer.email,
+					password: developer.password
+				})
+				.expect(200)
+				.expect(res => {
+					expect(res.headers['x-auth']).toExist();
+					expect(res.body.developer).toIncludeKeys(['id', 'name', 'email']);
+				})
+				.end((err, res) => {
+					if (err) return done(err);
+
+					Developer.findById(developer.id)
+						.then(dev => dev.findAllTokens())
+						.then(tokens => {
+							expect(tokens.length).toBe(2);
+							expect(tokens[1].tokenVal).toBe(res.headers['x-auth']);
+							done();
+						})
+						.catch(done);
+				});
+		});
+
+		it('should not log in a developer if unregistered email', (done) => {
+			const email = 'unregisteredemail@email.co';
+			const password = 'mansnothot1432!';
+
+			request(app)
+				.post('/developers/login')
+				.send({ email, password })
+				.expect(404)
+				.end(done);
+		});
+
+		it('should not log in a developer if invalid password', (done) => {
+			const developer = {
+				id: 2,
+				name: 'Sam',
+				email: 'samuel@yahoo.com',
+				password: 'cookie1n1he1ar-wrongpassword',
+			};
+			request(app)
+				.post('/developers/login')
+				.send({
+					email: developer.email,
+					password: developer.password
+				})
+				.expect(404)
+				.end((err, res) => {
+					if (err) return done(err);
+
+					Developer.findById(developer.id)
+						.then(dev => dev.findAllTokens())
+						.then(tokens => {
+							expect(tokens.length).toBe(0);
+							done();
+						})
+						.catch(done);
+				});
+		});
+	});
+
+	describe('POST /developers/signup', () => {
+		it('should sign up (insert) a developer', (done) => {
+			const name = 'newDev123';
+			const email = 'newDevvvemail@email.com';
+			const password = 'newDevPassw0rd';
+
+			request(app)
+				.post('/developers/signup')
+				.send({ name, email, password })
+				.expect(200)
+				.expect(res => {
+					expect(res.headers['x-auth']).toExist();
+					expect(res.body.developer).toIncludeKeys(['id', 'name', 'email']);
+					expect(res.body.developer).toInclude({ name, email });
+				})
+				.end((err, res) => {
+					if (err) return done(err);
+					Developer.findById(res.body.developer.id)
+						.then(dev => {
+							if (!dev) {
+								return Promise.reject();
+							}
+							expect(dev).toInclude(res.body.developer);
+							done();
+						})
+						.catch(done);
+				});
+		});
+
+		it('should not sign up a developer if email is taken', (done) => {
+			const name = 'newDev';
+			const email = 'foofoo@gmail.com';  // dev id = 1's email
+			const password = 'newDevPassw0rd';
+
+			request(app)
+				.post('/developers/signup')
+				.send({ name, email, password })
+				.expect(400)
+				.end(done);
+		});
+	});
 });
 
 describe('PATCH', () => {

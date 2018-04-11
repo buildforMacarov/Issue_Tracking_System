@@ -15,6 +15,15 @@ class Developer {
 
 	/* INSTANCE METHODS */
 
+	save() {
+		return bcrypt.hash(this.password, 12)
+			.then(hash => {
+				this.password = hash;
+				return db.query('insert into ?? set ?', [Developer.table, this]);
+			})
+			.then(insertRes => Developer.findById(insertRes.insertId));
+	}
+
 	toPublic() {
 		return {
 			id: this.id,
@@ -34,6 +43,32 @@ class Developer {
 			.then(rows => rows.map(row => new Issue(row)));
 	}
 
+	findAllTokens() {
+		const sql = `
+			select ${Token.table}.*
+			from ${Developer.table} inner join ${Developer.rel.token} on ${Developer.table}.id = ${Developer.rel.token}.developer_id
+			inner join ${Token.table} on ${Developer.rel.token}.token_id = ${Token.table}.id
+			where ${Developer.table}.id = ?
+		`;
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Token(row)));
+	}
+
+	generateAuthToken() {
+		const tokenVal = jwt.sign({
+			password: this.password
+		}, process.env.JWT_SECRET);
+
+		const token = new Token({ tokenVal });  // token without id
+		return token.save()
+				.then(token => {
+					return db.query('insert into ?? set ?', [Developer.rel.token, {
+						developer_id: this.id,
+						token_id: token.id
+					}])
+					.then(() => token);  // token with id
+				});
+	}
 
 	/* STATIC FIELDS */
 

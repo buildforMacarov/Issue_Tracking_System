@@ -41,4 +41,36 @@ router.get('/:id', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.post('/login', (req, res) => {
+	const { email, password } = req.body;
+
+	Developer.findByCredentials(email, password)
+		.then(dev => {
+			return dev.generateAuthToken()
+				.then(token => {
+					dev = dev.toPublic();
+					res.header('x-auth', token.tokenVal).send({ developer: dev });
+				});
+		})
+		.catch(error => res.status(404).send());
+});
+
+router.post('/signup', (req, res) => {
+	const dev = new Developer({
+		name: req.body.name,
+		email: req.body.email,
+		password: req.body.password
+	});  // dev with id = null
+	dev.save()
+		.then(_dev => {
+			return _dev.generateAuthToken()  // dev with an id
+				.then(token => {
+					_dev = _dev.toPublic();
+					res.header('x-auth', token.tokenVal).send({ developer: _dev });
+				});
+		})
+		.catch(error => res.status(400).send());
+});
+
+
 module.exports = router;
