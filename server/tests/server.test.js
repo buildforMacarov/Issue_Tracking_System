@@ -6,6 +6,7 @@ const { app } = require('./../server');
 const User = require('../models/user');
 const Issue = require('../models/issue');
 const Developer = require('../models/developer');
+const Admin = require('../models/admin');
 
 /* Place all GET tests BEFORE POSTS/PATCH/DELETE because of NO beforeEach hook */
 
@@ -533,6 +534,121 @@ describe('POST', () => {
 				.end(done);
 		});
 	});
+
+	describe('POST /admins/login', () => {
+		it('should log in an admin', (done) => {
+			// admin 2 already has one token
+			const admin = {
+				id: 2,
+				name: 'Sophie',
+				email: 'yesnoyes@yahoo.com',
+				password: 'fillupmyglass',
+			};
+			request(app)
+				.post('/admins/login')
+				.send({
+					email: admin.email,
+					password: admin.password
+				})
+				.expect(200)
+				.expect(res => {
+					expect(res.headers['x-auth']).toExist();
+					expect(res.body.admin).toIncludeKeys(['id', 'name', 'email']);
+				})
+				.end((err, res) => {
+					if (err) return done(err);
+
+					Admin.findById(admin.id)
+						.then(admin => admin.findAllTokens())
+						.then(tokens => {
+							expect(tokens.length).toBe(2);
+							expect(tokens[1].tokenVal).toBe(res.headers['x-auth']);
+							done();
+						})
+						.catch(done);
+				});
+		});
+
+		it('should not log in an admin if unregistered email', (done) => {
+			const email = 'unregisteredemail@email.co';
+			const password = 'mansnothot1432!';
+
+			request(app)
+				.post('/admins/login')
+				.send({ email, password })
+				.expect(404)
+				.end(done);
+		});
+
+		it('should not log in an admin if invalid password', (done) => {
+			const admin = {
+				id: 1,
+				name: 'Josh',
+				email: 'peoplepeepes@gmail.com',
+				password: 'yesthisistrue-wrongpassword',
+			};
+			request(app)
+				.post('/admins/login')
+				.send({
+					email: admin.email,
+					password: admin.password
+				})
+				.expect(404)
+				.end((err, res) => {
+					if (err) return done(err);
+
+					Admin.findById(admin.id)
+						.then(admin => admin.findAllTokens())
+						.then(tokens => {
+							expect(tokens.length).toBe(0);
+							done();
+						})
+						.catch(done);
+				});
+		});
+	});
+
+	describe('POST /admins/signup', () => {
+		it('should sign up (insert) an admin', (done) => {
+			const name = 'NewAdmin123';
+			const email = 'neweadminemail@email.com';
+			const password = 'newAdminPassw0rd';
+
+			request(app)
+				.post('/admins/signup')
+				.send({ name, email, password })
+				.expect(200)
+				.expect(res => {
+					expect(res.headers['x-auth']).toExist();
+					expect(res.body.admin).toIncludeKeys(['id', 'name', 'email']);
+					expect(res.body.admin).toInclude({ name, email });
+				})
+				.end((err, res) => {
+					if (err) return done(err);
+					Admin.findById(res.body.admin.id)
+						.then(admin => {
+							if (!admin) {
+								return Promise.reject();
+							}
+							expect(admin).toInclude(res.body.admin);
+							done();
+						})
+						.catch(done);
+				});
+		});
+
+		it('should not sign up an admin if email is taken', (done) => {
+			const name = 'newAdmin';
+			const email = 'peoplepeepes@gmail.com';  // admin id = 1's email
+			const password = 'newUserPassw0rd';
+
+			request(app)
+				.post('/admins/signup')
+				.send({ name, email, password })
+				.expect(400)
+				.end(done);
+		});
+	})
 });
 
 describe('PATCH', () => {

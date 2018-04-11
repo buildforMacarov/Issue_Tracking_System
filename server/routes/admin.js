@@ -30,6 +30,37 @@ router.get('/:id', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.post('/login', (req, res) => {
+	const { email, password } = req.body;
+
+	Admin.findByCredentials(email, password)
+		.then(admin => {
+			return admin.generateAuthToken()
+				.then(token => {
+					admin = admin.toPublic();
+					res.header('x-auth', token.tokenVal).send({ admin });
+				});
+		})
+		.catch(error => res.status(404).send());
+});
+
+router.post('/signup', (req, res) => {
+	const admin = new Admin({
+		name: req.body.name,
+		email: req.body.email,
+		password: req.body.password
+	});  // admin with id = null
+	admin.save()
+		.then(_admin => {
+			return _admin.generateAuthToken()  // user with an id
+				.then(token => {
+					_admin = _admin.toPublic();
+					res.header('x-auth', token.tokenVal).send({ admin: _admin });
+				});
+		})
+		.catch(error => res.status(400).send());
+});
+
 router.post('/assignment', authenticateAdmin, (req, res) => {
 	const { developerId, issueId } = req.body;
 	req.admin.insertAssignment(developerId, issueId)

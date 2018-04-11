@@ -14,6 +14,15 @@ class Admin {
 
 	/* INSTANCE METHODS */
 
+	save() {
+		return bcrypt.hash(this.password, 12)
+			.then(hash => {
+				this.password = hash;
+				return db.query('insert into ?? set ?', [Admin.table, this]);
+			})
+			.then(insertRes => Admin.findById(insertRes.insertId));
+	}
+
 	toPublic() {
 		return {
 			id: this.id,
@@ -30,6 +39,32 @@ class Admin {
 		}]);
 	}
 
+	findAllTokens() {
+		const sql = `
+			select ${Token.table}.*
+			from ${Admin.table} inner join ${Admin.rel.token} on ${Admin.table}.id = ${Admin.rel.token}.admin_id
+			inner join ${Token.table} on ${Admin.rel.token}.token_id = ${Token.table}.id
+			where ${Admin.table}.id = ?
+		`;
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Token(row)));
+	}
+
+	generateAuthToken() {
+		const tokenVal = jwt.sign({
+			password: this.password
+		}, process.env.JWT_SECRET);
+
+		const token = new Token({ tokenVal });  // token without id
+		return token.save()
+				.then(token => {
+					return db.query('insert into ?? set ?', [Admin.rel.token, {
+						admin_id: this.id,
+						token_id: token.id
+					}])
+					.then(() => token);  // token with id
+				});
+	}
 
 	/* STATIC FIELDS */
 
