@@ -5,6 +5,10 @@ const db = require('../db/database');
 const Issue = require('./issue');
 const Token = require('./token');
 
+const tables = require('../db/tables.json');
+const { DEVELOPER, ISSUE, TOKEN } = tables.entities;
+const { DEV_ISSUE, DEV_TOKEN } = tables.relationships;
+
 class Developer {
 	constructor(config) {
 		this.id = config.id || null;
@@ -19,7 +23,7 @@ class Developer {
 		return bcrypt.hash(this.password, 12)
 			.then(hash => {
 				this.password = hash;
-				return db.query('insert into ?? set ?', [Developer.table, this]);
+				return db.query('insert into ?? set ?', [DEVELOPER, this]);
 			})
 			.then(insertRes => Developer.findById(insertRes.insertId));
 	}
@@ -34,10 +38,10 @@ class Developer {
 
 	findAllIssues() {
 		const sql = `
-			SELECT ${Issue.table}.*
-			FROM ${Developer.table} INNER JOIN ${Developer.rel.issue} ON ${Developer.table}.id = ${Developer.rel.issue}.developer_id
-			INNER JOIN ${Issue.table} ON ${Developer.rel.issue}.issue_id = ${Issue.table}.id
-			WHERE ${Developer.table}.id = ?
+			SELECT ${ISSUE}.*
+			FROM ${DEVELOPER} INNER JOIN ${DEV_ISSUE} ON ${DEVELOPER}.id = ${DEV_ISSUE}.developer_id
+			INNER JOIN ${ISSUE} ON ${DEV_ISSUE}.issue_id = ${ISSUE}.id
+			WHERE ${DEVELOPER}.id = ?
 		`;
 		return db.query(sql, [this.id])
 			.then(rows => rows.map(row => new Issue(row)));
@@ -45,10 +49,10 @@ class Developer {
 
 	findAllTokens() {
 		const sql = `
-			select ${Token.table}.*
-			from ${Developer.table} inner join ${Developer.rel.token} on ${Developer.table}.id = ${Developer.rel.token}.developer_id
-			inner join ${Token.table} on ${Developer.rel.token}.token_id = ${Token.table}.id
-			where ${Developer.table}.id = ?
+			select ${TOKEN}.*
+			from ${DEVELOPER} inner join ${DEV_TOKEN} on ${DEVELOPER}.id = ${DEV_TOKEN}.developer_id
+			inner join ${TOKEN} on ${DEV_TOKEN}.token_id = ${TOKEN}.id
+			where ${DEVELOPER}.id = ?
 		`;
 		return db.query(sql, [this.id])
 			.then(rows => rows.map(row => new Token(row)));
@@ -62,7 +66,7 @@ class Developer {
 		const token = new Token({ tokenVal });  // token without id
 		return token.save()
 				.then(token => {
-					return db.query('insert into ?? set ?', [Developer.rel.token, {
+					return db.query('insert into ?? set ?', [DEV_TOKEN, {
 						developer_id: this.id,
 						token_id: token.id
 					}])
@@ -72,26 +76,15 @@ class Developer {
 
 	/* STATIC FIELDS */
 
-	static get table() {
-		return 'developers';
-	}
-
-	static get rel() {
-		return {
-			issue: 'developer_issue_assignment',
-			token: 'developer_tokens'
-		};
-	}
-
 	/* STATIC METHODS */
 
 	static findAll() {
-		return db.query('select * from ??', [Developer.table])
+		return db.query('select * from ??', [DEVELOPER])
 			.then(rows => rows.map(row => new Developer(row)));
 	}
 
 	static findById(id) {
-		return db.query('select * from ?? where id = ?', [Developer.table, id])
+		return db.query('select * from ?? where id = ?', [DEVELOPER, id])
 			.then(rows => {
 				if (rows.length === 0) {
 					return Promise.resolve(null);
@@ -101,7 +94,7 @@ class Developer {
 	}
 
 	static findByEmail(email) {
-		return db.query('select * from ?? where email = ?', [Developer.table, email])
+		return db.query('select * from ?? where email = ?', [DEVELOPER, email])
 			.then(rows => {
 				if (rows.length === 0) {
 					return Promise.resolve(null);
@@ -136,10 +129,10 @@ class Developer {
 		}
 
 		const sql = `
-			select ${Developer.table}.*
-			from ${Developer.table} inner join ${Developer.rel.token} on ${Developer.table}.id = ${Developer.rel.token}.developer_id
-			inner join ${Token.table} on ${Developer.rel.token}.token_id = ${Token.table}.id
-			where ${Token.table}.tokenVal = ? and ${Developer.table}.password = ?
+			select ${DEVELOPER}.*
+			from ${DEVELOPER} inner join ${DEV_TOKEN} on ${DEVELOPER}.id = ${DEV_TOKEN}.developer_id
+			inner join ${TOKEN} on ${DEV_TOKEN}.token_id = ${TOKEN}.id
+			where ${TOKEN}.tokenVal = ? and ${DEVELOPER}.password = ?
 		`;
 		return db.query(sql, [tokenVal, decoded.password])
 			.then(rows => {
