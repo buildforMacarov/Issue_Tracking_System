@@ -1,7 +1,8 @@
 const db = require('../db/database');
 
 const tables = require('../db/tables.json');
-const { ISSUE } = tables.entities;
+const { ISSUE, DEVELOPER } = tables.entities;
+const { DEV_ISSUE } = tables.relationships;
 
 class Issue {
 	constructor(config) {
@@ -22,6 +23,27 @@ class Issue {
 	updateStatus(status) {
 		return db.query('UPDATE ?? SET status = ? WHERE id = ?', [ISSUE, status, this.id])
 			.then(updateRes => Issue.findById(this.id));
+	}
+
+	getAssignees() {
+		const sql = `
+			select ${DEVELOPER}.* from
+			${ISSUE} inner join ${DEV_ISSUE}
+			on ${ISSUE}.id = ${DEV_ISSUE}.issue_id
+			inner join ${DEVELOPER}
+			on ${DEV_ISSUE}.developer_id = ${DEVELOPER}.id
+			where ${ISSUE}.id = ?
+		`;
+		return db.query(sql, [this.id])
+			.then(rows => {
+				return rows.map(row => {
+					return {
+						id: row.id,
+						name: row.name,
+						email: row.email
+					};
+				});
+			});
 	}
 
 	/* STATIC FIELDS */
