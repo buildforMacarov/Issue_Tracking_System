@@ -1,8 +1,8 @@
 const db = require('../db/database');
 
 const tables = require('../db/tables.json');
-const { ISSUE, DEVELOPER } = tables.entities;
-const { DEV_ISSUE } = tables.relationships;
+const { ISSUE, DEVELOPER, USER } = tables.entities;
+const { DEV_ISSUE, USER_ISSUE } = tables.relationships;
 
 class Issue {
 	constructor(config) {
@@ -32,6 +32,27 @@ class Issue {
 			on ${ISSUE}.id = ${DEV_ISSUE}.issue_id
 			inner join ${DEVELOPER}
 			on ${DEV_ISSUE}.developer_id = ${DEVELOPER}.id
+			where ${ISSUE}.id = ?
+		`;
+		return db.query(sql, [this.id])
+			.then(rows => {
+				return rows.map(row => {
+					return {
+						id: row.id,
+						name: row.name,
+						email: row.email
+					};
+				});
+			});
+	}
+
+	getRaisers() {
+		const sql = `
+			select ${USER}.* from
+			${ISSUE} inner join ${USER_ISSUE}
+			on ${ISSUE}.id = ${USER_ISSUE}.issue_id
+			inner join ${USER}
+			on ${USER_ISSUE}.user_id = ${USER}.id
 			where ${ISSUE}.id = ?
 		`;
 		return db.query(sql, [this.id])

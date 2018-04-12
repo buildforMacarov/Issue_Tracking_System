@@ -187,6 +187,11 @@ describe('GET', () => {
 					const issueIds = res.body.issues.map(issue => issue.id);
 					expect(res.body.issues.length).toBe(2);
 					expect(issueIds).toEqual([1, 2]);
+
+					const raisersOne = res.body.issues.find(is => is.id === 1).raisers;
+					const raisersTwo = res.body.issues.find(is => is.id === 2).raisers;
+					expect(raisersOne.map(r => r.id)).toEqual([2]);
+					expect(raisersTwo.map(r => r.id)).toEqual([1]);
 				})
 				.end(done);
 		});
