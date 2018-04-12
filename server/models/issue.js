@@ -1,7 +1,7 @@
 const db = require('../db/database');
 
 const tables = require('../db/tables.json');
-const { ISSUE, DEVELOPER, USER } = tables.entities;
+const { ISSUE, DEVELOPER, USER, ADMIN } = tables.entities;
 const { DEV_ISSUE, USER_ISSUE } = tables.relationships;
 
 class Issue {
@@ -64,6 +64,31 @@ class Issue {
 						email: row.email
 					};
 				});
+			});
+	}
+
+	getAssigner(devId) {
+		/**
+		 * Get the admin assigner of this issue to the dev with the given devId
+		 */
+		const sql = `
+			select ${ADMIN}.* from
+			${ISSUE} inner join ${DEV_ISSUE}
+			on ${ISSUE}.id = ${DEV_ISSUE}.issue_id
+			inner join ${ADMIN}
+			on ${DEV_ISSUE}.admin_id = ${ADMIN}.id
+			where ${ISSUE}.id = ? and ${DEV_ISSUE}.developer_id = ?
+		`;
+		return db.query(sql, [this.id, devId])
+			.then(rows => {
+				if (rows.length === 0) {
+					return Promise.resolve(null);
+				}
+				return {
+					id: rows[0].id,
+					name: rows[0].name,
+					email: rows[0].email
+				};
 			});
 	}
 

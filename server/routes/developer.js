@@ -18,22 +18,28 @@ router.get('/', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
-router.get('/issues', authenticateDev, (req, res) => {
-	req.developer.findAllIssues()
-		.then(issues => {
-			if (issues.length === 0) {
-				return res.status(404).send();
-			}
-			const raiserPromises = issues.map(issue => issue.getRaisers());
-			return Promise.all(raiserPromises)
-				.then(raisers => {
-					issues.forEach((issue, i) => {
-						issue.raisers = raisers[i];
-					});
-					res.json({ issues });
-				});
-		})
-		.catch(error => res.status(400).send());
+router.get('/issues', authenticateDev, async (req, res) => {
+	try {
+		const issues = await req.developer.findAllIssues();
+		if (issues.length === 0) return res.status(404).send();
+
+		const raiserGroupPromises = issues.map(issue => issue.getRaisers());  // Array<Promise<Array<JSON>>>
+		const assignerPromises = issues.map(issue => issue.getAssigner(req.developer.id));  // Array<Promise<JSON>>
+
+		const raiserGroups = await Promise.all(raiserGroupPromises);
+		issues.forEach((issue, i) => {
+			issue.raisers = raiserGroups[i];  // Array<JSON>
+		});
+		const assigners = await Promise.all(assignerPromises);
+		issues.forEach((issue, i) => {
+			issue.assigner = assigners[i];  // JSON
+		});
+		debugger;
+		res.json({ issues });
+	} catch (error) {
+		debugger;
+		res.status(400).send();
+	}
 });
 
 router.get('/:id', (req, res) => {

@@ -192,7 +192,22 @@ describe('GET', () => {
 					const raisersTwo = res.body.issues.find(is => is.id === 2).raisers;
 					expect(raisersOne.map(r => r.id)).toEqual([2]);
 					expect(raisersTwo.map(r => r.id)).toEqual([1]);
+
+					const assignerOne = res.body.issues.find(is => is.id === 1).assigner;
+					const assignerTwo = res.body.issues.find(is => is.id === 2).assigner;
+					expect(assignerOne.id).toEqual(1);
+					expect(assignerTwo.id).toEqual(2);
 				})
+				.end(done);
+		});
+
+		it('should return 404 if no issues assigned', (done) => {
+			// dev of id = 4, token of id = 6
+			const devFourToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRFM3pObmlFTHFBa3M4WmlYakZ3akdlTi4waDgwSWVyLkgvbmNwR1Z2aVV3ZFhISHlyWmxDaSIsImlhdCI6MTUyMzUzNjQ1MH0.gYF11NIeMZ8Ft0e-hAxYaEM0Q6kCkgNUmSk4f3oVJko';
+			request(app)
+				.get('/developers/issues')
+				.set('x-auth', devFourToken)
+				.expect(404)
 				.end(done);
 		});
 
