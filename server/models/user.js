@@ -5,6 +5,10 @@ const db = require('../db/database');
 const Issue = require('./issue');
 const Token = require('./token');
 
+const tables = require('../db/tables.json');
+const { USER, ISSUE, TOKEN } = tables.entities;
+const { USER_ISSUE, USER_TOKEN } = tables.relationships;
+
 class User {
 	constructor(config) {
 		this.id = config.id || null;
@@ -19,7 +23,7 @@ class User {
 		return bcrypt.hash(this.password, 12)
 			.then(hash => {
 				this.password = hash;
-				return db.query('insert into ?? set ?', [User.table, this]);
+				return db.query('insert into ?? set ?', [USER, this]);
 			})
 			.then(insertRes => User.findById(insertRes.insertId));
 	}
@@ -34,10 +38,10 @@ class User {
 
 	findAllIssues() {
 		const sql = `
-			SELECT ${Issue.table}.*
-			FROM ${User.table} INNER JOIN ${User.rel.issue} ON ${User.table}.id = ${User.rel.issue}.user_id
-			INNER JOIN ${Issue.table} ON ${User.rel.issue}.issue_id = ${Issue.table}.id
-			WHERE ${User.table}.id = ?
+			SELECT ${ISSUE}.*
+			FROM ${USER} INNER JOIN ${USER_ISSUE} ON ${USER}.id = ${USER_ISSUE}.user_id
+			INNER JOIN ${ISSUE} ON ${USER_ISSUE}.issue_id = ${ISSUE}.id
+			WHERE ${USER}.id = ?
 		`;
 		return db.query(sql, [this.id])
 			.then(rows => rows.map(row => new Issue(row)));
@@ -45,10 +49,10 @@ class User {
 
 	findAllTokens() {
 		const sql = `
-			select ${Token.table}.*
-			from ${User.table} inner join ${User.rel.token} on ${User.table}.id = ${User.rel.token}.user_id
-			inner join ${Token.table} on ${User.rel.token}.token_id = ${Token.table}.id
-			where ${User.table}.id = ?
+			select ${TOKEN}.*
+			from ${USER} inner join ${USER_TOKEN} on ${USER}.id = ${USER_TOKEN}.user_id
+			inner join ${TOKEN} on ${USER_TOKEN}.token_id = ${TOKEN}.id
+			where ${USER}.id = ?
 		`;
 		return db.query(sql, [this.id])
 			.then(rows => rows.map(row => new Token(row)));
@@ -62,7 +66,7 @@ class User {
 		const token = new Token({ tokenVal });  // token without id
 		return token.save()
 				.then(token => {
-					return db.query('insert into ?? set ?', [User.rel.token, {
+					return db.query('insert into ?? set ?', [USER_TOKEN, {
 						user_id: this.id,
 						token_id: token.id
 					}])
@@ -74,7 +78,7 @@ class User {
 		const issue = new Issue(issueConfig); // issue without id
 		return issue.save()
 				.then(issue => {
-					return db.query('insert into ?? set ?', [User.rel.issue, {
+					return db.query('insert into ?? set ?', [USER_ISSUE, {
 						user_id: this.id,
 						issue_id: issue.id
 					}])
@@ -84,26 +88,15 @@ class User {
 
 	/* STATIC FIELDS */
 
-	static get table() {
-		return 'users';
-	}
-
-	static get rel() {
-		return {
-			issue: 'user_issue_open',
-			token: 'user_tokens'
-		};
-	}
-
 	/* STATIC METHODS */
 
 	static findAll() {
-		return db.query('select * from ??', [User.table])
+		return db.query('select * from ??', [USER])
 			.then(rows => rows.map(row => new User(row)));
 	}
 
 	static findById(id) {
-		return db.query('select * from ?? where id = ?', [User.table, id])
+		return db.query('select * from ?? where id = ?', [USER, id])
 			.then(rows => {
 				if (rows.length === 0) {
 					return Promise.resolve(null);
@@ -113,7 +106,7 @@ class User {
 	}
 
 	static findByEmail(email) {
-		return db.query('select * from ?? where email = ?', [User.table, email])
+		return db.query('select * from ?? where email = ?', [USER, email])
 			.then(rows => {
 				if (rows.length === 0) {
 					return Promise.resolve(null);
@@ -148,10 +141,10 @@ class User {
 		}
 
 		const sql = `
-			select ${User.table}.*
-			from ${User.table} inner join ${User.rel.token} on ${User.table}.id = ${User.rel.token}.user_id
-			inner join ${Token.table} on ${User.rel.token}.token_id = ${Token.table}.id
-			where ${Token.table}.tokenVal = ? and ${User.table}.password = ?
+			select ${USER}.*
+			from ${USER} inner join ${USER_TOKEN} on ${USER}.id = ${USER_TOKEN}.user_id
+			inner join ${TOKEN} on ${USER_TOKEN}.token_id = ${TOKEN}.id
+			where ${TOKEN}.tokenVal = ? and ${USER}.password = ?
 		`;
 		return db.query(sql, [tokenVal, decoded.password])
 			.then(rows => {
