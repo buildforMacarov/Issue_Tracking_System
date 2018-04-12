@@ -39,6 +39,7 @@ class User {
 			INNER JOIN ${Issue.table} ON ${User.rel.issue}.issue_id = ${Issue.table}.id
 			WHERE ${User.table}.id = ?
 		`;
+		debugger;
 		return db.query(sql, [this.id])
 			.then(rows => rows.map(row => new Issue(row)));
 	}

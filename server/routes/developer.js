@@ -21,6 +21,7 @@ router.get('/', (req, res) => {
 router.get('/issues', authenticateDev, (req, res) => {
 	req.developer.findAllIssues()
 		.then(issues => {
+			debugger;
 			if (issues.length === 0) {
 				return res.status(404).send();
 			}

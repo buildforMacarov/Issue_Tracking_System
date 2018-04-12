@@ -107,6 +107,11 @@ describe('GET', () => {
 					const issueIds = res.body.issues.map(issue => issue.id);
 					expect(res.body.issues.length).toBe(2);
 					expect(issueIds).toEqual([1, 3]);
+
+					const assigneesOne = res.body.issues.find(is => is.id === 1).assignees;
+					const assigneesTwo = res.body.issues.find(is => is.id === 3).assignees;
+					expect(assigneesOne.map(a => a.id)).toEqual([1, 2, 3]);
+					expect(assigneesTwo.map(a => a.id)).toEqual([]);
 				})
 				.end(done);
 		});
@@ -322,7 +327,7 @@ describe('POST', () => {
 		});
 	});
 	
-	describe('POST admins/assignment', () => {
+	describe('POST /admins/assignment', () => {
 		/* private to admin */
 		// admin of id 2, using token of id 5
 		const adminTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiQyc2dPTVhXTmU4Mjd1QUxZMHdHMlh1Y3BEODk4L3FHWUhjNWxIZ0tldUx0L0FlN2diRndhYSIsImlhdCI6MTUyMzI2NDIxN30.kn34Zc76XRrBH8JxGIYONljP8-YMaaCyF9RU00-1EDE';

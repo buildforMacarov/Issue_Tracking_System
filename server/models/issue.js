@@ -1,5 +1,7 @@
 const db = require('../db/database');
 
+const Developer = require('./developer');
+
 class Issue {
 	constructor(config) {
 		this.id = config.id || null;
@@ -21,10 +23,29 @@ class Issue {
 			.then(updateRes => Issue.findById(this.id));
 	}
 
+	getAssignees() {
+		const sql = `
+			select ${Developer.table}.* from
+			${Issue.table} inner join ${Issue.rel.developer}
+			on ${Issue.table}.id = ${Issue.rel.developer}.issue_id
+			inner join ${Developer.table}
+			on ${Issue.rel.developer}.developer_id = ${Developer.table}.id
+			where ${Issue.table}.id = ?
+		`;
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Developer(row).toPublic()));
+	}
+
 	/* STATIC FIELDS */
 
 	static get table() {
 		return 'issues';
+	}
+
+	static get rel() {
+		return {
+			developer: 'developer_issue_assignment'
+		};
 	}
 
 	/* STATIC METHODS */

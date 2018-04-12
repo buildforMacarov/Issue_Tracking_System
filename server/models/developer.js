@@ -39,6 +39,7 @@ class Developer {
 			INNER JOIN ${Issue.table} ON ${Developer.rel.issue}.issue_id = ${Issue.table}.id
 			WHERE ${Developer.table}.id = ?
 		`;
+		debugger;
 		return db.query(sql, [this.id])
 			.then(rows => rows.map(row => new Issue(row)));
 	}

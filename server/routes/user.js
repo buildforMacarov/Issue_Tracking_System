@@ -24,7 +24,16 @@ router.get('/issues', authenticateUser, (req, res) => {
 			if (issues.length === 0) {
 				return res.status(404).send();
 			}
-			res.json({ issues });
+			const assigneePromises = issues.map(issue => issue.getAssignees());
+			return Promise.all(assigneePromises)
+				.then(assignees => {
+					debugger;
+					issues.forEach((issue, i) => {
+						issue.assignees = assignees[i];
+					});
+					debugger;
+					res.json({ issues });
+				});
 		})
 		.catch(error => res.status(400).send());
 });
