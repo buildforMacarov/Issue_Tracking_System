@@ -367,6 +367,10 @@ describe('POST', () => {
 							expect(issues.length).toBe(2);
 							const issueIds = issues.map(is => is.id);
 							expect(issueIds).toEqual([1, issueId]);
+							return Issue.findById(issueId);
+						})
+						.then(issue => {
+							expect(issue.status).toBe('ongoing');
 							done();
 						})
 						.catch(done);

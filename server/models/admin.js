@@ -5,7 +5,7 @@ const db = require('../db/database');
 const Token = require('./token');
 
 const tables = require('../db/tables.json');
-const { ADMIN, TOKEN } = tables.entities;
+const { ADMIN, TOKEN, ISSUE } = tables.entities;
 const { DEV_ISSUE, ADMIN_TOKEN } = tables.relationships;
 
 class Admin {
@@ -40,7 +40,10 @@ class Admin {
 			admin_id: this.id,
 			developer_id: devId,
 			issue_id: issueId
-		}]);
+		}])
+		.then(insertRes => {
+			return db.query('UPDATE ?? SET status = ? WHERE id = ?', [ISSUE, 'ongoing', issueId]);
+		});
 	}
 
 	findAllTokens() {

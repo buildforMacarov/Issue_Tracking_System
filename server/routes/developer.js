@@ -34,10 +34,8 @@ router.get('/issues', authenticateDev, async (req, res) => {
 		issues.forEach((issue, i) => {
 			issue.assigner = assigners[i];  // JSON
 		});
-		debugger;
 		res.json({ issues });
 	} catch (error) {
-		debugger;
 		res.status(400).send();
 	}
 });
