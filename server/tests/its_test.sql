@@ -108,8 +108,8 @@ insert into admins values
 (2,'Sophie','yesnoyes@yahoo.com','$2a$12$2sgOMXWNe827uALY0wG2XucpD898/qGYHc5lHgKeuLt/Ae7gbFwaa');  -- fillupmyglass
 
 insert into issues values
-(1, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'open'),
-(2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'open'),
+(1, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'ongoing'),
+(2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'ongoing'),
 (3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open'),
 (4, 'Cat too nice', 'kjljdosf oiiofk owidfoidfd', null, 'open');
 
