@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const db = require('../db/database');
 const Token = require('./token');
+const Issue = require('./issue');
 
 const tables = require('../db/tables.json');
 const { ADMIN, TOKEN, ISSUE } = tables.entities;
@@ -41,8 +42,10 @@ class Admin {
 			developer_id: devId,
 			issue_id: issueId
 		}])
-		.then(insertRes => {
-			return db.query('UPDATE ?? SET status = ? WHERE id = ?', [ISSUE, 'ongoing', issueId]);
+		.then(insertRes => Issue.findById(issueId))
+		.then(issue => {
+			if (!issue) return Promise.reject();
+			return issue.updateStatus('ongoing');
 		});
 	}
 

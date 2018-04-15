@@ -69,7 +69,7 @@ router.post('/signup', (req, res) => {
 router.post('/assignment', authenticateAdmin, (req, res) => {
 	const { developerId, issueId } = req.body;
 	req.admin.insertAssignment(developerId, issueId)
-		.then(() => res.status(200).send())
+		.then(issue => res.json({ issue }))
 		.catch(error => res.status(400).send());
 });
 

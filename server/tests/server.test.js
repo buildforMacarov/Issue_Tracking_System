@@ -309,7 +309,7 @@ describe('PATCH', () => {
 
 					Issue.findById(issueId)
 						.then(issue => {
-							expect(issue.status).toBe('open');
+							expect(issue.status).toBe('ongoing');
 							done();
 						})
 						.catch(done);
@@ -452,6 +452,9 @@ describe('POST', () => {
 				.set('x-auth', adminTwoToken)
 				.send({ developerId, issueId })
 				.expect(200)
+				.expect(res => {
+					expect(res.body.issue.status).toBe('ongoing');
+				})
 				.end((err, res) => {
 					if (err) return done(err);
 					Developer.findById(developerId)
