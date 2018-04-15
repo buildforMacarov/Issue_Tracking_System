@@ -18,6 +18,11 @@ router.get('/', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.get('/me', authenticateAdmin, (req, res) => {
+	const admin = req.admin.toPublic();
+	res.json({ admin });
+});
+
 router.get('/:id', (req, res) => {
 	Admin.findById(req.params.id)
 		.then(admin => {

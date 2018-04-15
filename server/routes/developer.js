@@ -40,6 +40,11 @@ router.get('/issues', authenticateDev, async (req, res) => {
 	}
 });
 
+router.get('/me', authenticateDev, (req, res) => {
+	const developer = req.developer.toPublic();
+	res.json({ developer });
+});
+
 router.get('/:id', (req, res) => {
 	Developer.findById(req.params.id)
 		.then(dev => {

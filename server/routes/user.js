@@ -36,6 +36,11 @@ router.get('/issues', authenticateUser, (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.get('/me', authenticateUser, (req, res) => {
+	const user = req.user.toPublic();
+	res.json({ user });
+});
+
 router.patch('/issues/:id', authenticateUser, (req, res) => {
 	const { status } = req.body;
 	const id = Number(req.params.id);
