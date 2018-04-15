@@ -13,6 +13,7 @@ Tracks software issues :mag:
 * Put the following in a new file `.env` in the project's root directory
   - `DBUSER=its_tester`
   - `DB=its_test`
+  - `JWT_SECRET=2okejf0jfkeflj20ef89e8fkl`
 * Configure the database
   - `$ mysql -u root -p`
   - `mysql> create database its_test;`
