@@ -110,7 +110,8 @@ insert into admins values
 insert into issues values
 (1, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'open'),
 (2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'open'),
-(3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open');
+(3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open'),
+(4, 'Cat too nice', 'kjljdosf oiiofk owidfoidfd', null, 'open');
 
 -- jwt secret = 2okejf0jfkeflj20ef89e8fkl
 insert into login_tokens values

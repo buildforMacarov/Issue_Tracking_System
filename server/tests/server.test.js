@@ -13,12 +13,12 @@ const Admin = require('../models/admin');
 describe('GET', () => {
 	describe('GET /issues', () => {
 		/* private to admin */
-		it('should return all 3 issues', (done) => {
+		it('should return all 4 issues', (done) => {
 			request(app)
 				.get('/issues')
 				.expect(200)
 				.expect(res => {
-					expect(res.body.issues.length).toBe(3);
+					expect(res.body.issues.length).toBe(4);
 					expect(res.body.issues[0]).toIncludeKeys(['id', 'heading', 'description', 'time', 'status']);
 				})
 				.end(done);
@@ -266,6 +266,99 @@ describe('GET', () => {
 				.get('/admins/9999')
 				.expect(404)
 				.end(done);
+		});
+	});
+});
+
+describe('PATCH', () => {
+	describe('PATCH /users/issues/:id', () => {
+		/* private to user */
+		// token of id = 2, of user id = 2
+		const userTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjEzNn0.-OfyeL1y8ONTKiVpLFybxNnPVPGmWV4Xx1X7s75yflM';
+		it('should close a user\'s issue', (done) => {
+			const issueId = 3;
+			request(app)
+				.patch(`/users/issues/${issueId}`)
+				.set('x-auth', userTwoToken)
+				.send({ status: 'closed' })
+				.expect(200)
+				.expect(res => {
+					expect(res.body.issue.status).toBe('closed');
+				})
+				.end((err, res) => {
+					if (err) return done(err);
+
+					Issue.findById(issueId)
+						.then(issue => {
+							expect(issue.status).toBe('closed');
+							done();
+						})
+						.catch(done);
+				});
+		});
+
+		it('should not close an issue created by other users', (done) => {
+			const issueId = 2;
+			request(app)
+				.patch(`/users/issues/${issueId}`)
+				.set('x-auth', userTwoToken)
+				.send({ status: 'closed' })
+				.expect(404)
+				.end(err => {
+					if (err) return done(err);
+
+					Issue.findById(issueId)
+						.then(issue => {
+							expect(issue.status).toBe('open');
+							done();
+						})
+						.catch(done);
+				});
+		});
+	});
+
+	describe('PATCH /developers/issues/:id', () => {
+		// dev of id = 3, using token of id = 4
+		const devThreeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRIWFpQU3c0Q29oUVNKUDlLdnMzYThlNkRCbkowQkF1LnlrMS5JbjlJTy9vUjAva3Noc1RQSyIsImlhdCI6MTUyMzI2MzI4MX0.p-jmoRcn8DlQxs3ERFNXHdKE_g_cMOuQg0LcOKptmvA';
+		it('should close an assigned issue', (done) => {
+			const issueId = 2;
+			request(app)
+				.patch(`/developers/issues/${issueId}`)
+				.set('x-auth', devThreeToken)
+				.send({ status: 'closed' })
+				.expect(200)
+				.expect(res => {
+					expect(res.body.issue.status).toBe('closed');
+				})
+				.end((err, res) => {
+					if (err) return done(err);
+
+					Issue.findById(issueId)
+						.then(issue => {
+							expect(issue.status).toBe('closed');
+							done();
+						})
+						.catch(done);
+				});
+		});
+
+		it('should not close an issue assigned to other devs', (done) => {
+			const issueId = 4;
+			request(app)
+				.patch(`/devlopers/issues/${issueId}`)
+				.set('x-auth', devThreeToken)
+				.send({ status: 'closed' })
+				.expect(404)
+				.end(err => {
+					if (err) return done(err);
+
+					Issue.findById(issueId)
+						.then(issue => {
+							expect(issue.status).toBe('open');
+							done();
+						})
+						.catch(done);
+				});
 		});
 	});
 });
@@ -791,54 +884,6 @@ describe('POST', () => {
 				.send({ name, email, password })
 				.expect(400)
 				.end(done);
-		});
-	});
-});
-
-describe('PATCH', () => {
-	describe('PATCH /users/issues/:id', () => {
-		/* private to user */
-		// token of id = 2, of user id = 2
-		const userTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjEzNn0.-OfyeL1y8ONTKiVpLFybxNnPVPGmWV4Xx1X7s75yflM';
-		it('should close a user\'s issue', (done) => {
-			const issueId = 3;
-			request(app)
-				.patch(`/users/issues/${issueId}`)
-				.set('x-auth', userTwoToken)
-				.send({ status: 'closed '})
-				.expect(200)
-				.expect(res => {
-					expect(res.body.issue.status).toBe('closed');
-				})
-				.end((err, res) => {
-					if (err) return done(err);
-	
-					Issue.findById(issueId)
-						.then(issue => {
-							expect(issue.status).toBe('closed');
-							done();
-						})
-						.catch(done);
-				});
-		});
-	
-		it('should not close an issue created by other users', (done) => {
-			const issueId = 2;
-			request(app)
-				.patch(`/users/issues/${issueId}`)
-				.set('x-auth', userTwoToken)
-				.send({ status: 'closed' })
-				.expect(404)
-				.end(err => {
-					if (err) return done(err);
-	
-					Issue.findById(issueId)
-						.then(issue => {
-							expect(issue.status).toBe('open');
-							done();
-						})
-						.catch(done);
-				});
 		});
 	});
 });

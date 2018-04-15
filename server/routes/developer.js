@@ -83,5 +83,20 @@ router.post('/signup', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.patch('/issues/:id', authenticateDev, (req, res) => {
+	const { status } = req.body;
+	const id = Number(req.params.id);
+
+	req.developer.findAllIssues()
+		.then(issues => issues.find(issue => issue.id === id))
+		.then(issue => {
+			if (typeof issue === 'undefined') {
+				return res.status(404).send();
+			}
+			return issue.updateStatus(status);
+		})
+		.then(issue => res.send({ issue }))
+		.catch(error => res.status(400).send());
+});
 
 module.exports = router;
