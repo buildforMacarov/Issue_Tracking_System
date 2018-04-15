@@ -1,0 +1,16 @@
+{
+    "entities": {
+        "USER": "users",
+        "DEVELOPER": "developers",
+        "ADMIN": "admins",
+        "ISSUE": "issues",
+        "TOKEN": "login_tokens"
+    },
+    "relationships": {
+        "USER_ISSUE": "user_issue_open",
+        "DEV_ISSUE": "developer_issue_assignment",
+        "USER_TOKEN": "user_tokens",
+        "DEV_TOKEN": "developer_tokens",
+        "ADMIN_TOKEN": "admin_tokens"
+    }
+}
