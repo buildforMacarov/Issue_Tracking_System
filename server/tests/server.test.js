@@ -229,12 +229,12 @@ describe('GET', () => {
 	
 	describe('GET /admins', () => {
 		/* private to admin */
-		it('should return all 2 admins', (done) => {
+		it('should return all 3 admins', (done) => {
 			request(app)
 				.get('/admins')
 				.expect(200)
 				.expect(res => {
-					expect(res.body.admins.length).toBe(2);
+					expect(res.body.admins.length).toBe(3);
 					expect(res.body.admins[0]).toIncludeKeys(['id', 'name', 'email']);
 				})
 				.end(done);
@@ -265,6 +265,61 @@ describe('GET', () => {
 			request(app)
 				.get('/admins/9999')
 				.expect(404)
+				.end(done);
+		});
+	});
+
+	describe('GET /admins/issues', () => {
+		/* private to admin */
+		// admin of id = 2, using token of id = 5
+		const adminTwoToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiQyc2dPTVhXTmU4Mjd1QUxZMHdHMlh1Y3BEODk4L3FHWUhjNWxIZ0tldUx0L0FlN2diRndhYSIsImlhdCI6MTUyMzI2NDIxN30.kn34Zc76XRrBH8JxGIYONljP8-YMaaCyF9RU00-1EDE';
+		it('should return all issues an admin assigned to devs', (done) => {
+			request(app)
+				.get('/admins/issues')
+				.set('x-auth', adminTwoToken)
+				.expect(200)
+				.expect(res => {
+					const issues = res.body.issues;
+
+					const issueIds = issues.map(issue => issue.id);
+					expect(issues.length).toBe(2);
+					expect(issueIds).toEqual([1, 2]);
+
+					const assigneesOne = issues.find(is => is.id === 1).assignees;
+					const assigneesTwo = issues.find(is => is.id === 2).assignees;
+					expect(assigneesOne.map(a => a.id)).toEqual([1, 2, 3]);  // assignees for this issue made by other admins included
+					expect(assigneesTwo.map(a => a.id)).toEqual([2, 3]);
+
+					const raisersOne = res.body.issues.find(is => is.id === 1).raisers;
+					const raisersTwo = res.body.issues.find(is => is.id === 2).raisers;
+					expect(raisersOne.map(r => r.id)).toEqual([2]);
+					expect(raisersTwo.map(r => r.id)).toEqual([1]);
+				})
+				.end(done);
+		});
+
+		it('should return 404 if no issues assigned', (done) => {
+			// admin of id = 3, token of id = 8
+			const adminThreeToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRqVWM5Z2Rjc2hrYUQyUzFXQ0owRGJPN3dRYnRzN3g5SkpYNVkxSFMubmxNQ0c4MURhTWxmTyIsImlhdCI6MTUyNDA3MDk0M30.JH5l8r5mWZ3_T4SFpMRK2G2GfJIjmVVxEnMpUfsBpMk';
+			request(app)
+				.get('/admins/issues')
+				.set('x-auth', adminThreeToken)
+				.expect(404)
+				.end(done);
+		});
+
+		it('should return 401 if no token in header', (done) => {
+			request(app)
+				.get('/admins/issues')
+				.expect(401)
+				.end(done);
+		});
+
+		it('should return 401 if invalid token', (done) => {
+			request(app)
+				.get('/admins/issues')
+				.set('x-auth', 'aaabbbccc')
+				.expect(401)
 				.end(done);
 		});
 	});
@@ -725,7 +780,7 @@ describe('POST', () => {
 					Admin.findById(admin.id)
 						.then(admin => admin.findAllTokens())
 						.then(tokens => {
-							expect(tokens.length).toBe(0);
+							expect(tokens.length).toBe(1);
 							done();
 						})
 						.catch(done);
