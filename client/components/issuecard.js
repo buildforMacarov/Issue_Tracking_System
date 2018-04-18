@@ -7,22 +7,17 @@ export class IssueCard extends React.Component {
 	}
 
 	render() {
-		const { id, heading, description, time, status } = this.props;
+		const { id, heading, description, status, time } = this.props;
 
 		return (
-			<div className="card">
-				<div className="card-body">
-					<h5 className="card-title">{heading}</h5>
-					<h6 className="card-subtitle">#{id}</h6>
-					<p className="card-text">{description}</p>
-					<button
-						type="button"
-						className={status === 'open' ? 'btn btn-success' : 'btn btn-danger'}
-						disabled>
-						{status === 'open' ? 'Open' : 'Closed'}
-					</button>
+			<div className="Issue-card">
+				<div className="Issue-card__head d-flex w-100 justify-content-between">
+					<h5>{heading}</h5>
+					<span>#{id}</span>
 				</div>
-				<small class="text-muted">{time}</small>
+				<div className="Issue-card__body">
+					<p>{description}</p>
+				</div>
 			</div>
 		);
 	}

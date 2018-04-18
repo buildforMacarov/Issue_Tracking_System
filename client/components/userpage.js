@@ -12,10 +12,17 @@ export class UserPage extends React.Component {
 			userInfo: null,
 			error: null
 		};
+		this.request = axios.create({
+			baseURL: '/users',
+			timeout: 3000,
+			headers: {
+				'x-auth': props.AUTHTOKEN
+			}
+		});
 	}
 
 	componentDidMount() {
-		axios.get(`/users/${this.props.id}`)
+		this.request.get('/me')
 			.then(res => {
 				this.setState({
 					infoAvail: true,
@@ -30,19 +37,19 @@ export class UserPage extends React.Component {
 	}
 
 	render() {
-		const { infoAvail, userInfo } = this.state;
-		if (infoAvail) {
-			return (
-				<div>
-					<Navbar mainLabel={userInfo.name} />
-					<IssueGrid userId={this.props.id} />
-				</div>
-			);
+		const { error, infoAvail, userInfo } = this.state;
+		if (error) {
+			return <div>Error: {error.message}</div>;
+		} else if (!infoAvail) {
+			return <div>Loading...</div>;
 		} else {
 			return (
 				<div>
-					<Navbar mainLabel="..." />
-					<IssueGrid userId={this.props.id} />
+					<Navbar mainLabel={userInfo.name} />
+					<IssueGrid
+						userId={this.props.id}
+						request={this.request}
+					/>
 				</div>
 			);
 		}

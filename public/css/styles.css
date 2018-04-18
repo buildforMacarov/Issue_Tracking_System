@@ -1,0 +1,15 @@
+.Issue-card {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid gray;
+}
+.Issue-card__head {
+    font-size: 1.25rem;
+}
+.Issue-card__body p {
+    margin: 0;
+}
+
+.Issue-grid {
+    margin: 20px auto;
+}
