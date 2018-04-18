@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Navbar } from './navbar';
 import { IssueGrid } from './issuegrid';
 
-export class UserPage extends React.Component {
+export class IssuePage extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -13,7 +13,7 @@ export class UserPage extends React.Component {
 			error: null
 		};
 		this.request = axios.create({
-			baseURL: '/users',
+			baseURL: `/${props.userType}s`,
 			timeout: 3000,
 			headers: {
 				'x-auth': props.AUTHTOKEN
@@ -26,7 +26,7 @@ export class UserPage extends React.Component {
 			.then(res => {
 				this.setState({
 					infoAvail: true,
-					userInfo: res.data.user
+					userInfo: res.data[this.props.userType]
 				});
 			}, error => {
 				this.setState({
@@ -47,7 +47,6 @@ export class UserPage extends React.Component {
 				<div>
 					<Navbar mainLabel={userInfo.name} />
 					<IssueGrid
-						userId={this.props.id}
 						request={this.request}
 					/>
 				</div>

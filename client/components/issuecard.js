@@ -2,10 +2,6 @@ import React from 'react';
 import axios from 'axios';
 
 export class IssueCard extends React.Component {
-	constructor(props) {
-		super(props);
-	}
-
 	render() {
 		const { id, heading, description, status, time } = this.props;
 
