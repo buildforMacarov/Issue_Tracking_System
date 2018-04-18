@@ -1,32 +1,51 @@
-const jwt = require('jsonwebtoken');
-
-const { db } = require('./../server');
+const User = require('../models/user');
+const Developer = require('../models/developer');
+const Admin = require('../models/admin');
 
 const authenticateUser = (req, res, next) => {
-	const token = req.header('x-auth');
-	let decoded;
-	try {
-		decoded = jwt.verify(token, process.env.JWT_SECRET);
-	} catch (error) {
-		return res.status(401).send();
-	}
-
-	const sql = `
-		select users.id, users.name, users.email
-		from users inner join user_tokens on users.id = user_tokens.user_id
-		inner join login_tokens on user_tokens.token_id = login_tokens.id
-		where login_tokens.token = ? and users.id = ? and users.email = ? and users.password = ?;
-	`;
-	db.query(sql, [token, decoded.id, decoded.email, decoded.password])
-		.then(rows => {
-			if (rows.length === 0) {
+	const tokenVal = req.header('x-auth');
+	User.findByToken(tokenVal)
+		.then(user => {
+			if (!user) {
 				return Promise.reject();
 			}
-			req.user = rows[0];
-			req.token = token;
+			req.user = user;
+			req.tokenVal = tokenVal;
 			next();
 		})
 		.catch(() => res.status(401).send());
 };
 
-module.exports = { authenticateUser };
+const authenticateDev = (req, res, next) => {
+	const tokenVal = req.header('x-auth');
+	Developer.findByToken(tokenVal)
+		.then(dev => {
+			if (!dev) {
+				return Promise.reject();
+			}
+			req.developer = dev;
+			req.tokenVal = tokenVal;
+			next();
+		})
+		.catch(() => res.status(401).send());
+};
+
+const authenticateAdmin = (req, res, next) => {
+	const tokenVal = req.header('x-auth');
+	Admin.findByToken(tokenVal)
+		.then(admin => {
+			if (!admin) {
+				return Promise.reject();
+			}
+			req.admin = admin;
+			req.tokenVal = tokenVal;
+			next();
+		})
+		.catch(() => res.status(401).send());
+};
+
+module.exports = {
+	authenticateUser,
+	authenticateDev,
+	authenticateAdmin
+};

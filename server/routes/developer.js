@@ -2,6 +2,8 @@ const express = require('express');
 
 const Developer = require('../models/developer');
 
+const { authenticateDev } = require('../middleware/authenticate');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -16,6 +18,33 @@ router.get('/', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.get('/issues', authenticateDev, async (req, res) => {
+	try {
+		const issues = await req.developer.findAllIssues();
+		if (issues.length === 0) return res.status(404).send();
+
+		const raiserGroupPromises = issues.map(issue => issue.getRaisers());  // Array<Promise<Array<JSON>>>
+		const assignerPromises = issues.map(issue => issue.getAssigner(req.developer.id));  // Array<Promise<JSON>>
+
+		const raiserGroups = await Promise.all(raiserGroupPromises);
+		issues.forEach((issue, i) => {
+			issue.raisers = raiserGroups[i];  // Array<JSON>
+		});
+		const assigners = await Promise.all(assignerPromises);
+		issues.forEach((issue, i) => {
+			issue.assigner = assigners[i];  // JSON
+		});
+		res.json({ issues });
+	} catch (error) {
+		res.status(400).send();
+	}
+});
+
+router.get('/me', authenticateDev, (req, res) => {
+	const developer = req.developer.toPublic();
+	res.json({ developer });
+});
+
 router.get('/:id', (req, res) => {
 	Developer.findById(req.params.id)
 		.then(dev => {
@@ -28,20 +57,50 @@ router.get('/:id', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
-router.get('/:developerId/issues', (req, res) => {
-	Developer.findById(req.params.developerId)
+router.post('/login', (req, res) => {
+	const { email, password } = req.body;
+
+	Developer.findByCredentials(email, password)
 		.then(dev => {
-			if (!dev) {
+			return dev.generateAuthToken()
+				.then(token => {
+					dev = dev.toPublic();
+					res.header('x-auth', token.tokenVal).send({ developer: dev });
+				});
+		})
+		.catch(error => res.status(404).send());
+});
+
+router.post('/signup', (req, res) => {
+	const dev = new Developer({
+		name: req.body.name,
+		email: req.body.email,
+		password: req.body.password
+	});  // dev with id = null
+	dev.save()
+		.then(_dev => {
+			return _dev.generateAuthToken()  // dev with an id
+				.then(token => {
+					_dev = _dev.toPublic();
+					res.header('x-auth', token.tokenVal).send({ developer: _dev });
+				});
+		})
+		.catch(error => res.status(400).send());
+});
+
+router.patch('/issues/:id', authenticateDev, (req, res) => {
+	const { status } = req.body;
+	const id = Number(req.params.id);
+
+	req.developer.findAllIssues()
+		.then(issues => issues.find(issue => issue.id === id))
+		.then(issue => {
+			if (typeof issue === 'undefined') {
 				return res.status(404).send();
 			}
-			return dev.findAllIssues();
+			return issue.updateStatus(status);
 		})
-		.then(issues => {
-			if (issues.length === 0) {
-				return res.status(404).send();
-			}
-			res.json({ issues });
-		})
+		.then(issue => res.send({ issue }))
 		.catch(error => res.status(400).send());
 });
 

@@ -2,6 +2,8 @@ const express = require('express');
 
 const User = require('../models/user');
 
+const { authenticateUser } = require('../middleware/authenticate');
+
 const router = express.Router();
 
 router.get('/', (req, res) => {
@@ -16,6 +18,45 @@ router.get('/', (req, res) => {
 		.catch(error => res.status(400).send());
 });
 
+router.get('/issues', authenticateUser, (req, res) => {
+	req.user.findAllIssues()
+		.then(issues => {
+			if (issues.length === 0) {
+				return res.status(404).send();
+			}
+			const assigneePromises = issues.map(issue => issue.getAssignees());
+			return Promise.all(assigneePromises)
+				.then(assignees => {
+					issues.forEach((issue, i) => {
+						issue.assignees = assignees[i];
+					});
+					res.json({ issues });
+				});
+		})
+		.catch(error => res.status(400).send());
+});
+
+router.get('/me', authenticateUser, (req, res) => {
+	const user = req.user.toPublic();
+	res.json({ user });
+});
+
+router.patch('/issues/:id', authenticateUser, (req, res) => {
+	const { status } = req.body;
+	const id = Number(req.params.id);
+
+	req.user.findAllIssues()
+		.then(issues => issues.find(issue => issue.id === id))
+		.then(issue => {
+			if (typeof issue === 'undefined') {
+				return res.status(404).send();
+			}
+			return issue.updateStatus(status);
+		})
+		.then(issue => res.send({ issue }))
+		.catch(error => res.status(400).send());
+});
+
 router.get('/:id', (req, res) => {
 	User.findById(req.params.id)
 		.then(user => {
@@ -24,23 +65,6 @@ router.get('/:id', (req, res) => {
 			}
 			user = user.toPublic();
 			res.json({ user });
-		})
-		.catch(error => res.status(400).send());
-});
-
-router.get('/:userId/issues', (req, res) => {
-	User.findById(req.params.userId)
-		.then(user => {
-			if (!user) {
-				return res.status(404).send();
-			}
-			return user.findAllIssues();
-		})
-		.then(issues => {
-			if (issues.length === 0) {
-				return res.status(404).send();
-			}
-			res.json({ issues });
 		})
 		.catch(error => res.status(400).send());
 });
@@ -73,6 +97,14 @@ router.post('/signup', (req, res) => {
 					res.header('x-auth', token.tokenVal).send({ user: _user });
 				});
 		})
+		.catch(error => res.status(400).send());
+});
+
+router.post('/issues', authenticateUser, (req, res) => {
+	const { heading, description } = req.body;
+
+	req.user.insertIssue({ heading, description })
+		.then(issue => res.json({ issue }))
 		.catch(error => res.status(400).send());
 });
 
