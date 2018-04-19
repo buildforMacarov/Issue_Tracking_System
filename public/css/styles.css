@@ -12,8 +12,11 @@
 .Issue-card__footer {
     margin-top: 10px;
 }
-.Issue-card__time {
+.Issue-card--muted {
     font-size: 90%;
+}
+.Issue-card .people-list__item {
+    margin-right: 0.25rem;
 }
 .Issue-card__status {
     padding: 2px 5px;

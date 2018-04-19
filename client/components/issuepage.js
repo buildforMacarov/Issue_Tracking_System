@@ -52,6 +52,7 @@ export class IssuePage extends React.Component {
 					/>
 					<IssueGrid
 						request={this.request}
+						userType={this.props.userType}
 					/>
 				</div>
 			);

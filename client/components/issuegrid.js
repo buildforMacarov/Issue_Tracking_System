@@ -43,13 +43,7 @@ export class IssueGrid extends React.Component {
 						issues.map(issue => (
 							<div className="row Issue-grid__row">
 								<div className="col">
-									<IssueCard
-										id={issue.id}
-										heading={issue.heading}
-										description={issue.description}
-										time={issue.time}
-										status={issue.status}
-									/>
+									<IssueCard issueInfo={issue} userType={this.props.userType} />
 								</div>
 							</div>
 						))
