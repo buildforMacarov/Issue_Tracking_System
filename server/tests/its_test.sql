@@ -109,10 +109,10 @@ insert into admins values
 (3, 'Gary', 'gary@pineapple.pen', '$2a$12$jUc9gdcshkaD2S1WCJ0DbO7wQbts7x9JJX5Y1HS.nlMCG81DaMlfO'); -- pineapplepen
 
 insert into issues values
-(1, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'ongoing'),
-(2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'ongoing'),
-(3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open'),
-(4, 'Cat too nice', 'kjljdosf oiiofk owidfoidfd', null, 'open');
+(1, 'Tea too cold', 'Id vel dicant putent conceptam, no albucius prodesset quo. Malorum sapientem accusamus vim at. Blandit reprimique eam in', null, 'ongoing'),
+(2, 'Coffee too hot', 'Eam ei utinam labitur legendos. Sonet forensibus persequeris ad duo, cum deserunt dignissim theophrastus ut, no enim aliquip accumsan mei. An vel tation vivendum intellegat, inimicus volutpat consequat at has', null, 'ongoing'),
+(3, 'Function too slow', ' Ex assum consequat moderatius qui, vix id stet aeque iracundia, nam ut harum graece impedit. Pri te erat iudico lucilius. Nulla clita omittantur his at. Pri omnesque imperdiet splendide cu.', null, 'open'),
+(4, 'Cat too nice', 'Id mei tritani perpetua electram, vis ex legere altera. Elit albucius qui an, homero aliquando vix ea. His etiam alienum at, choro repudiandae vim id.', null, 'open');
 
 -- jwt secret = 2okejf0jfkeflj20ef89e8fkl
 insert into login_tokens values
