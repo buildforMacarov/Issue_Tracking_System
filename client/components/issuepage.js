@@ -45,7 +45,7 @@ export class IssuePage extends React.Component {
 		} else {
 			return (
 				<div>
-					<Navbar mainLabel={userInfo.name} />
+					<Navbar mainLabel={userInfo.name} subLabel={userInfo.email} />
 					<IssueGrid
 						request={this.request}
 					/>
