@@ -15,7 +15,7 @@ export class IssueCard extends React.Component {
 		const peopleList = people => {
 			return (
 				<ul className="list-inline d-inline">
-					{people.map(p => <li className="list-inline-item people-list__item">{badge(p.name)}</li>)}
+					{people.map(p => <li className="list-inline-item people-list__item" data-toggle="tooltip" data-placement="top" title={p.email}>{badge(p.name)}</li>)}
 				</ul>
 			);
 		};
