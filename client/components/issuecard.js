@@ -56,11 +56,13 @@ export class IssueCard extends React.Component {
 					<p className="Issue-card__desc">{description}</p>
 				</div>
 				<div className="Issue-card__footer">
-					<div className="d-flex w-100 justify-content-between">
+					<div className="Issue-card__time">
 						<p className="Issue-card--muted text-muted">{formattedDateTime(time)}</p>
+					</div>
+					<div className="d-flex w-100 justify-content-between align-items-center">
+						{this.peopleInfo()}
 						<p className={`Issue-card__status Issue-card__status--${status}`}>{status}</p>
 					</div>
-					{this.peopleInfo()}
 				</div>
 			</div>
 		);
