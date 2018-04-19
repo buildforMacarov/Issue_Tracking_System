@@ -1,0 +1,37 @@
+.Issue-card {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border: 1px solid gray;
+}
+.Issue-card p {
+    margin-bottom: 0;
+}
+.Issue-card__head {
+    font-size: 1.25rem;
+}
+.Issue-card__footer {
+    margin-top: 10px;
+}
+.Issue-card--muted {
+    font-size: 90%;
+}
+.Issue-card .people-list__item {
+    margin-right: 0.25rem;
+}
+.Issue-card__status {
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+.Issue-card__status--open {
+    background-color: rgb(58, 175, 58);
+}
+.Issue-card__status--ongoing {
+    background-color: rgb(240, 213, 61)
+}
+.Issue-card__status--closed {
+    background-color: rgb(243, 111, 94)
+}
+
+.Issue-grid {
+    margin: 20px auto;
+}

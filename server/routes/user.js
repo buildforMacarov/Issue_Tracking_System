@@ -24,11 +24,11 @@ router.get('/issues', authenticateUser, (req, res) => {
 			if (issues.length === 0) {
 				return res.status(404).send();
 			}
-			const assigneePromises = issues.map(issue => issue.getAssignees());
-			return Promise.all(assigneePromises)
-				.then(assignees => {
+			const assigneeGroupPromises = issues.map(issue => issue.getAssignees());  // Array<Promise<Array<JSON>>>
+			return Promise.all(assigneeGroupPromises)
+				.then(assigneeGroups => {
 					issues.forEach((issue, i) => {
-						issue.assignees = assignees[i];
+						issue.assignees = assigneeGroups[i];  // Array<JSON>
 					});
 					res.json({ issues });
 				});

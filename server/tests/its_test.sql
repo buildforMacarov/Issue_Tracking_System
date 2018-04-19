@@ -62,7 +62,7 @@ create table developer_issue_assignment (
   admin_id int not null,
   developer_id int not null,
   issue_id int not null,
-  primary key (developer_id, issue_id),  -- different admins cannot assign the same dev to the same issue
+  primary key (developer_id, issue_id),  -- different admins cannot assign the same dev to the same issue. Hence 'select distince' for GET /admins/issues
   foreign key (admin_id) references admins(id),
   foreign key (developer_id) references developers(id),
   foreign key (issue_id) references issues(id)
@@ -105,13 +105,14 @@ insert into developers values
 
 insert into admins values
 (1,'Josh','peoplepeepes@gmail.com','$2a$12$omrHgF.XIGnau321NJeGrONzSCLdrlQy9w3lANjdlU/UISmNDCiFy'),  -- yesthisistrue
-(2,'Sophie','yesnoyes@yahoo.com','$2a$12$2sgOMXWNe827uALY0wG2XucpD898/qGYHc5lHgKeuLt/Ae7gbFwaa');  -- fillupmyglass
+(2,'Sophie','yesnoyes@yahoo.com','$2a$12$2sgOMXWNe827uALY0wG2XucpD898/qGYHc5lHgKeuLt/Ae7gbFwaa'),  -- fillupmyglass
+(3, 'Gary', 'gary@pineapple.pen', '$2a$12$jUc9gdcshkaD2S1WCJ0DbO7wQbts7x9JJX5Y1HS.nlMCG81DaMlfO'); -- pineapplepen
 
 insert into issues values
-(1, 'Tea too cold', 'klsdjfal lskdfjs lk erwef', null, 'ongoing'),
-(2, 'Coffee too hot', 'sdfsdvv ghrtr lk gdfgg', null, 'ongoing'),
-(3, 'Function too slow', 'klsdjfal dhfhgh lk sldkdfjsldf', null, 'open'),
-(4, 'Cat too nice', 'kjljdosf oiiofk owidfoidfd', null, 'open');
+(1, 'Tea too cold', 'Id vel dicant putent conceptam, no albucius prodesset quo. Malorum sapientem accusamus vim at. Blandit reprimique eam in', null, 'ongoing'),
+(2, 'Coffee too hot', 'Eam ei utinam labitur legendos. Sonet forensibus persequeris ad duo, cum deserunt dignissim theophrastus ut, no enim aliquip accumsan mei. An vel tation vivendum intellegat, inimicus volutpat consequat at has', null, 'ongoing'),
+(3, 'Function too slow', ' Ex assum consequat moderatius qui, vix id stet aeque iracundia, nam ut harum graece impedit. Pri te erat iudico lucilius. Nulla clita omittantur his at. Pri omnesque imperdiet splendide cu.', null, 'open'),
+(4, 'Cat too nice', 'Id mei tritani perpetua electram, vis ex legere altera. Elit albucius qui an, homero aliquando vix ea. His etiam alienum at, choro repudiandae vim id.', null, 'open');
 
 -- jwt secret = 2okejf0jfkeflj20ef89e8fkl
 insert into login_tokens values
@@ -120,7 +121,9 @@ insert into login_tokens values
 (3, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRrcGpxcjR2NjhvMmxWbnJ3R3dqVlBPUy9BcEpGTWlReGpsbmEyclJ0VlNaTTlIMU4xQmRtLiIsImlhdCI6MTUyMzIxMjE2M30.GJxwAC7fRAF9UzQ4AaP3r5bnWG8TPXZgw-jfYx0aaJE'),
 (4, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRIWFpQU3c0Q29oUVNKUDlLdnMzYThlNkRCbkowQkF1LnlrMS5JbjlJTy9vUjAva3Noc1RQSyIsImlhdCI6MTUyMzI2MzI4MX0.p-jmoRcn8DlQxs3ERFNXHdKE_g_cMOuQg0LcOKptmvA'),
 (5, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiQyc2dPTVhXTmU4Mjd1QUxZMHdHMlh1Y3BEODk4L3FHWUhjNWxIZ0tldUx0L0FlN2diRndhYSIsImlhdCI6MTUyMzI2NDIxN30.kn34Zc76XRrBH8JxGIYONljP8-YMaaCyF9RU00-1EDE'),
-(6, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRFM3pObmlFTHFBa3M4WmlYakZ3akdlTi4waDgwSWVyLkgvbmNwR1Z2aVV3ZFhISHlyWmxDaSIsImlhdCI6MTUyMzUzNjQ1MH0.gYF11NIeMZ8Ft0e-hAxYaEM0Q6kCkgNUmSk4f3oVJko');
+(6, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRFM3pObmlFTHFBa3M4WmlYakZ3akdlTi4waDgwSWVyLkgvbmNwR1Z2aVV3ZFhISHlyWmxDaSIsImlhdCI6MTUyMzUzNjQ1MH0.gYF11NIeMZ8Ft0e-hAxYaEM0Q6kCkgNUmSk4f3oVJko'),
+(7, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRvbXJIZ0YuWElHbmF1MzIxTkplR3JPTnpTQ0xkcmxReTl3M2xBTmpkbFUvVUlTbU5EQ2lGeSIsImlhdCI6MTUyNDA2OTk4M30.zIEsbNED1wmQb_mVC-o-zMPbX8b6IuZ4EZDoOkOtM_k'),
+(8, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiRqVWM5Z2Rjc2hrYUQyUzFXQ0owRGJPN3dRYnRzN3g5SkpYNVkxSFMubmxNQ0c4MURhTWxmTyIsImlhdCI6MTUyNDA3MDk0M30.JH5l8r5mWZ3_T4SFpMRK2G2GfJIjmVVxEnMpUfsBpMk');
 
 insert into user_issue_open values
 (2, 1),
@@ -144,4 +147,6 @@ insert into developer_tokens values
 (4, 6);
 
 insert into admin_tokens values
-(2, 5);
+(2, 5),
+(1, 7),
+(3, 8);

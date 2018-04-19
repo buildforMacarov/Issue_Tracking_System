@@ -14,9 +14,8 @@ export class IssueGrid extends React.Component {
 	}
 
 	componentDidMount() {
-		axios.get(`/users/${this.props.userId}/issues`)
+		this.props.request.get('/issues')
 			.then(res => {
-				console.log(res);
 				this.setState({
 					isLoaded: true,
 					issues: res.data.issues
@@ -39,18 +38,12 @@ export class IssueGrid extends React.Component {
 			return <div>Loading...</div>;
 		} else {
 			return (
-				<div className="container">
+				<div className="container Issue-grid">
 					{
 						issues.map(issue => (
-							<div className="row">
+							<div className="row Issue-grid__row">
 								<div className="col">
-									<IssueCard
-										id={issue.id}
-										heading={issue.heading}
-										description={issue.description}
-										status={issue.status}
-										time={issue.time}
-									/>
+									<IssueCard issueInfo={issue} userType={this.props.userType} />
 								</div>
 							</div>
 						))
