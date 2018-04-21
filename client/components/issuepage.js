@@ -44,7 +44,7 @@ export class IssuePage extends React.Component {
 			return <div>Loading...</div>;
 		} else {
 			return (
-				<div>
+				<div className="Issue-page">
 					<Navbar
 						mainLabel={userInfo.name}
 						subLabel={userInfo.email}
