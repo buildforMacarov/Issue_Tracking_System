@@ -60,6 +60,20 @@ class Admin {
 			.then(rows => rows.map(row => new Token(row)));
 	}
 
+	findAllIssues() {
+		/**
+		 * Return distinct issues assigned by this admin
+		 */
+		const sql = `
+			SELECT DISTINCT ${ISSUE}.*
+			FROM ${ADMIN} INNER JOIN ${DEV_ISSUE} ON ${ADMIN}.id = ${DEV_ISSUE}.admin_id
+			INNER JOIN ${ISSUE} ON ${DEV_ISSUE}.issue_id = ${ISSUE}.id
+			WHERE ${ADMIN}.id = ?
+		`;
+		return db.query(sql, [this.id])
+			.then(rows => rows.map(row => new Issue(row)));
+	}
+
 	generateAuthToken() {
 		const tokenVal = jwt.sign({
 			password: this.password

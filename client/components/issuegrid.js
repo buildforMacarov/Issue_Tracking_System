@@ -9,17 +9,38 @@ export class IssueGrid extends React.Component {
 		this.state = {
 			error: null,
 			isLoaded: false,
-			items: []
+			issues: []
 		}
+
+		this.reloadIssues = this.reloadIssues.bind(this);
 	}
 
 	componentDidMount() {
-		axios.get('/get/Animal')
+		this.props.request.get('/issues')
 			.then(res => {
-				console.log(res.data);
 				this.setState({
 					isLoaded: true,
-					items: res.data
+					issues: res.data.issues
+				});
+			},
+			error => {
+				this.setState({	
+					isLoaded: true,
+					error
+				});
+			});
+	}
+
+	reloadIssues() {
+		this.setState({
+			isLoaded: false
+		});
+
+		this.props.request.get('/issues')
+			.then(res => {
+				this.setState({
+					isLoaded: true,
+					issues: res.data.issues
 				});
 			},
 			error => {
@@ -31,7 +52,7 @@ export class IssueGrid extends React.Component {
 	}
 
 	render() {
-		const { error, isLoaded, items } = this.state;
+		const { error, isLoaded, issues } = this.state;
 
 		if (error) {
 			return <div>Error: {error.message}</div>;
@@ -39,19 +60,21 @@ export class IssueGrid extends React.Component {
 			return <div>Loading...</div>;
 		} else {
 			return (
-				<div className="container">
-					{items.map(item => (
-						<div className="row">
-							<div className="col">
-								<IssueCard
-									id={item.AnimalID}
-									type={item.AnimalType}
-									diseaseBegin={item.Disease_begin}
-									disease={item.Disease}
-								/>
-							</div>
+				<div className="container Issue-grid">
+					<div className="row Issue-grid__reload">
+						<div className="col text-center">
+							<button type="button" className="btn btn-dark" onClick={this.reloadIssues}>Reload Issues</button>
 						</div>
-					))}
+					</div>
+					{
+						issues.map(issue => (
+							<div className="row Issue-grid__row">
+								<div className="col">
+									<IssueCard issueInfo={issue} userType={this.props.userType} />
+								</div>
+							</div>
+						))
+					}
 				</div>
 			);
 		}
