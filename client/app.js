@@ -25,13 +25,10 @@ class App extends React.Component {
 	}
 
 	render() {
-		const { loggedIn } = this.state;
+		const { loggedIn, authToken, userType } = this.state;
 		const page = loggedIn ?
-			<IssuePage
-				userType='admin'
-				AUTHTOKEN='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXNzd29yZCI6IiQyYSQxMiQyc2dPTVhXTmU4Mjd1QUxZMHdHMlh1Y3BEODk4L3FHWUhjNWxIZ0tldUx0L0FlN2diRndhYSIsImlhdCI6MTUyMzI2NDIxN30.kn34Zc76XRrBH8JxGIYONljP8-YMaaCyF9RU00-1EDE'
-			/>
-			: <LoginPage />
+			<IssuePage userType={userType} AUTHTOKEN={authToken} /> :
+			<LoginPage onLogin={this.loginSuccess} />
 		return page;
 	}
 }

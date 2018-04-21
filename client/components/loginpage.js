@@ -4,41 +4,35 @@ import axios from 'axios';
 export class LoginPage extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			infoAvail: false,
-			userInfo: null,
-			error: null
-		};
-		// this.request = axios.create({
-		// 	baseURL: `/${props.userType}s`,
-		// 	timeout: 3000,
-		// 	headers: {
-		// 		'x-auth': props.AUTHTOKEN
-		// 	}
-		// });
+
+		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
-	// componentDidMount() {
-	// 	this.request.get('/me')
-	// 		.then(res => {
-	// 			this.setState({
-	// 				infoAvail: true,
-	// 				userInfo: res.data[this.props.userType]
-	// 			});
-	// 		}, error => {
-	// 			this.setState({
-	// 				infoAvail: true,
-	// 				error
-	// 			});
-	// 		});
-	// }
+	handleSubmit(event) {
+		event.preventDefault();
+
+		const userType = document.querySelector('input[name=account-type]:checked').value;
+		const email = document.getElementById('inputEmail').value;
+		const password = document.getElementById('inputPassword').value;
+
+		axios.post(`/${userType}s/login`, { email, password })
+		.then(response => {
+			this.props.onLogin({
+				token: response.headers['x-auth'],
+				userType: userType
+			});
+		}, error => {
+			/* TODO - render login error */
+			console.log('Oopsy!', error);
+		});
+	}
 
 	render() {
 		return (
 			<div className="Login-page container">
 		        <div className="row">
 					<div className="col">
-						<form>
+						<form onSubmit={this.handleSubmit}>
 							<div className="form-group">
 								<label>Email address</label>
 								<input type="email" className="form-control" id="inputEmail" placeholder="Enter email" required autofocus />
@@ -51,19 +45,19 @@ export class LoginPage extends React.Component {
 								<p>Who are you signing in as?</p>
 								<div className="form-check form-check-inline">
 									<input className="form-check-input" type="radio" id="user-account" name="account-type" value="user" required />
-									<label className="form-check-label" for="user-account">user</label>
+									<label className="form-check-label" for="user-account">User</label>
 								</div>
 								<div className="form-check form-check-inline">
 									<input className="form-check-input" type="radio" id="dev-account" name="account-type" value="developer" />
-									<label className="form-check-label" for="dev-account">developer</label>
+									<label className="form-check-label" for="dev-account">Developer</label>
 								</div>
 								<div className="form-check form-check-inline">
 									<input className="form-check-input" type="radio" id="admin-account" name="account-type" value="admin" />
-									<label className="form-check-label" for="admin-account">admin</label>
+									<label className="form-check-label" for="admin-account">Administrator</label>
 								</div>
 							</div>
 							<div className="form-group text-center">
-								<button type="submit" className="btn btn-primary">Sign In</button>
+								<button type="submit" className="btn btn-dark">Sign In</button>
 							</div>
 						</form>
 					</div>
