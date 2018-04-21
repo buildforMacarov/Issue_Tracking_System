@@ -35,6 +35,9 @@
 .Issue-grid {
     margin: 20px auto;
 }
+.Issue-grid__reload {
+    margin-bottom: 20px;
+}
 
 
 .Login-page {

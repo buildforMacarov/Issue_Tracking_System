@@ -11,6 +11,8 @@ export class IssueGrid extends React.Component {
 			isLoaded: false,
 			issues: []
 		}
+
+		this.reloadIssues = this.reloadIssues.bind(this);
 	}
 
 	componentDidMount() {
@@ -29,6 +31,26 @@ export class IssueGrid extends React.Component {
 			});
 	}
 
+	reloadIssues() {
+		this.setState({
+			isLoaded: false
+		});
+
+		this.props.request.get('/issues')
+			.then(res => {
+				this.setState({
+					isLoaded: true,
+					issues: res.data.issues
+				});
+			},
+			error => {
+				this.setState({
+					isLoaded: true,
+					error
+				});
+			});
+	}
+
 	render() {
 		const { error, isLoaded, issues } = this.state;
 
@@ -39,6 +61,11 @@ export class IssueGrid extends React.Component {
 		} else {
 			return (
 				<div className="container Issue-grid">
+					<div className="row Issue-grid__reload">
+						<div className="col text-center">
+							<button type="button" className="btn btn-dark" onClick={this.reloadIssues}>Reload Issues</button>
+						</div>
+					</div>
 					{
 						issues.map(issue => (
 							<div className="row Issue-grid__row">
